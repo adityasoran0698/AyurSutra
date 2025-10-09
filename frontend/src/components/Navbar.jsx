@@ -24,7 +24,6 @@ const Navbar = () => {
           setUser(null);
         }
       } catch (err) {
-        console.log("Error fetching user:", err);
         setUser(null);
       }
     }

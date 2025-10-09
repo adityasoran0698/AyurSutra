@@ -8,7 +8,6 @@ router.post("/add-therapy", async (req, res) => {
   try {
     const body = req.body;
     const user = await validateToken(req.cookies.token);
-    console.log(req);
     const therapy = await Therapy.create({
       name: body.name,
       description: body.description,
@@ -16,7 +15,7 @@ router.post("/add-therapy", async (req, res) => {
       price: body.price,
       createdBy: user._id,
     });
-    await Therapy.populate("createdBy", "fullname email phoneNumber role");
+await therapy.populate("createdBy", "fullname email phoneNumber role");
 
     return res.status(200).json({ message: "Therapy Added Successfully!" });
   } catch (error) {

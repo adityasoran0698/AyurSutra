@@ -20,7 +20,6 @@ const AddTherapyPage = () => {
           withCredentials: true, // needed if auth cookies are used
         }
       );
-      console.log(data);
       toast.success(response.data.message);
       reset(); // clear form after submit
     } catch (error) {

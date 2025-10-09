@@ -36,9 +36,7 @@ async function sendInAppNotification(bookingId, sessionIndex, message) {
         },
       }
     );
-    console.log("📥 In-App notification stored for booking:", bookingId);
   } catch (err) {
-    console.error("❌ In-App notification error:", err.message);
   }
 }
 

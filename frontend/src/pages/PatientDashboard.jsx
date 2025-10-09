@@ -328,42 +328,10 @@ export default function PatientDashboard() {
       </div>
 
       {/* charts + next session */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-2 bg-white p-4 rounded-xl shadow">
-          {upcomingSessions.length > 0 && (
-            <div className="mb-4 p-3 rounded bg-blue-50 border border-blue-200">
-              <p className="text-sm text-blue-800">
-                <strong>Next Session:</strong>{" "}
-                {new Date(upcomingSessions[0].sessionDate).toLocaleDateString()}{" "}
-                for <strong>{upcomingSessions[0].therapyName}</strong> with
-                {" " + "Dr. "}
-                {upcomingSessions[0].doctor?.fullname || "your doctor"}
-              </p>
-            </div>
-          )}
-          <h3 className="font-semibold mb-2">
-            Upcoming Sessions (next 14 days)
-          </h3>
-          <div style={{ height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sessionsByDay}>
-                <XAxis dataKey="date" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="sessions"
-                  stroke="#22c55e"
-                  fill="#bbf7d0"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl shadow">
-          <h3 className="font-semibold mb-2">Session Status</h3>
-          <div style={{ height: 260 }}>
+      <div className="flex  w-full items-center justify-center">
+        <div className="bg-white p-4 rounded-xl shadow w-full ">
+          <h3 className="font-semibold mb-2 text-center text-lg">Session Status</h3>
+          <div style={{ height: 250 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie

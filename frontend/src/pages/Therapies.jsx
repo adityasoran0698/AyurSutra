@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Therapies = () => {
   const [therapies, setTherapies] = useState([]);
@@ -19,7 +20,7 @@ const Therapies = () => {
         setTherapies(data.therapies);
         setFilteredTherapies(data.therapies);
       } catch (err) {
-        console.log("Error fetching therapies:", err);
+        toast.error("Failed to fetch therapies" + err.message);
       }
     }
 
@@ -33,7 +34,7 @@ const Therapies = () => {
           setUser(data.user);
         }
       } catch (err) {
-        console.log("Error fetching user:", err);
+        setUser(null);
       }
     }
 
