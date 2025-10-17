@@ -16,7 +16,7 @@ const Therapies = () => {
     async function fetchTherapies() {
       try {
         const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com//therapy"
+          "https://ayursutra-panchakarma.onrender.com/therapy"
         );
         const data = await res.json();
         setTherapies(data.therapies);
@@ -29,7 +29,7 @@ const Therapies = () => {
     async function fetchUser() {
       try {
         const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com//user/me",
+          "https://ayursutra-panchakarma.onrender.com/user/me",
           {
             credentials: "include",
           }

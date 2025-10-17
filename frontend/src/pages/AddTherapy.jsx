@@ -14,7 +14,7 @@ const AddTherapyPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        `https://ayursutra-panchakarma.onrender.com//therapy/add-therapy`,
+        `https://ayursutra-panchakarma.onrender.com/therapy/add-therapy`,
         data,
         {
           withCredentials: true, // needed if auth cookies are used

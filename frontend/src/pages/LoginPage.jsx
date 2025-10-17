@@ -17,7 +17,7 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://ayursutra-panchakarma.onrender.com//user/login",
+        "https://ayursutra-panchakarma.onrender.com/user/login",
         { ...data, role },
         { withCredentials: true }
       );

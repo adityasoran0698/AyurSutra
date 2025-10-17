@@ -40,7 +40,7 @@ export default function DoctorDashboard() {
     try {
       setLoading(true);
       const res = await axios.get(
-        "https://ayursutra-panchakarma.onrender.com//user/patients",
+        "https://ayursutra-panchakarma.onrender.com/user/patients",
         {
           withCredentials: true,
         }
@@ -144,7 +144,7 @@ export default function DoctorDashboard() {
       };
 
       const res = await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com//bookings/update/${bookingId}`,
+        `https://ayursutra-panchakarma.onrender.com/bookings/update/${bookingId}`,
         { sessions: updatedSessions, progress: newProgress },
         { withCredentials: true }
       );
@@ -165,7 +165,7 @@ export default function DoctorDashboard() {
     try {
       setProcessing(true);
       const res = await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com//bookings/${bookingId}/auto-schedule`,
+        `https://ayursutra-panchakarma.onrender.com/bookings/${bookingId}/auto-schedule`,
         {},
         { withCredentials: true }
       );
@@ -184,7 +184,7 @@ export default function DoctorDashboard() {
   async function handleUpdateNotes(bookingId, notes) {
     try {
       await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com//bookings/update/${bookingId}`,
+        `https://ayursutra-panchakarma.onrender.com/bookings/update/${bookingId}`,
         { doctorNotes: notes },
         { withCredentials: true }
       );

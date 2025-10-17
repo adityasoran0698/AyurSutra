@@ -18,7 +18,7 @@ const BookTherapies = () => {
     async function fetchTherapy() {
       try {
         const res = await fetch(
-          `https://ayursutra-panchakarma.onrender.com//therapy/${id}`
+          `https://ayursutra-panchakarma.onrender.com/therapy/${id}`
         );
         if (res.ok) {
           const data = await res.json();
@@ -38,7 +38,7 @@ const BookTherapies = () => {
     async function fetchDoctors() {
       try {
         const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com//user/doctors"
+          "https://ayursutra-panchakarma.onrender.com/user/doctors"
         );
         if (res.ok) {
           const data = await res.json();
@@ -61,7 +61,7 @@ const BookTherapies = () => {
 
     try {
       const response = await axios.post(
-        "https://ayursutra-panchakarma.onrender.com//bookings",
+        "https://ayursutra-panchakarma.onrender.com/bookings",
         {
           therapyId: therapy._id,
           doctorId: selectedDoctor,
