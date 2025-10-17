@@ -96,6 +96,7 @@ export default function DoctorDashboard() {
   ];
 
   // sessions grouped by day
+  // Sessions grouped by day for next 14 days, future sessions only
   const sessionsByDay = useMemo(() => {
     const days = 14;
     const now = new Date();
@@ -103,12 +104,22 @@ export default function DoctorDashboard() {
     for (let i = 0; i < days; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
-      map[isoDate(d)] = 0;
+      const key = `${String(d.getDate()).padStart(2, "0")}/${String(
+        d.getMonth() + 1
+      ).padStart(2, "0")}/${d.getFullYear()}`; // dd/mm/yyyy
+      map[key] = 0;
     }
-    for (const s of allSessions) {
-      const key = isoDate(s.sessionDate);
-      if (key in map) map[key] += 1;
-    }
+
+    allSessions.forEach((s) => {
+      const sessionDate = new Date(s.sessionDate);
+      if (sessionDate >= now) {
+        const key = `${String(sessionDate.getDate()).padStart(2, "0")}/${String(
+          sessionDate.getMonth() + 1
+        ).padStart(2, "0")}/${sessionDate.getFullYear()}`;
+        if (key in map) map[key] += 1;
+      }
+    });
+
     return Object.keys(map).map((k) => ({ date: k, sessions: map[k] }));
   }, [allSessions]);
 
@@ -220,8 +231,8 @@ export default function DoctorDashboard() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-2 bg-white p-4 rounded-xl shadow">
+      <div className="w-[100%] bg-white p-4 rounded-xl shadow  ">
+        <div className="w-full">
           <h3 className="font-semibold mb-2">Upcoming Sessions</h3>
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -236,27 +247,6 @@ export default function DoctorDashboard() {
                   fill="#bbf7d0"
                 />
               </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow">
-          <h3 className="font-semibold mb-2">Session Status</h3>
-          <div style={{ height: 240 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={80}
-                  label
-                >
-                  {pieData.map((entry, idx) => (
-                    <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
             </ResponsiveContainer>
           </div>
         </div>

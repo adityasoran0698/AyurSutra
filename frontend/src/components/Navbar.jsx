@@ -69,7 +69,6 @@ const Navbar = () => {
               ) : (
                 <Link
                   to="/add-therapy"
-                  
                   className="relative text-emerald-700 cursor-pointer
           after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
           after:h-[2px] after:w-0 after:bg-teal-600 

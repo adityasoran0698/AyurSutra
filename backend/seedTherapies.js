@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const Therapy = require("./models/Therapy.js");
 
-const MONGO_URI = "mongodb://localhost:27017/ayursutra";
+const MONGO_URI =
+  "mongodb+srv://adityasoran_db_user:Adi20003@ayursutra-cluster.vkcy7ah.mongodb.net/AyurSutra?retryWrites=true&w=majority";
 
 // List of major Ayurvedic therapies with instructions
 const therapies = [

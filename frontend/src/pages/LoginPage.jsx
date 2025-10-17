@@ -26,7 +26,7 @@ const LoginPage = () => {
         role === "patient"
           ? navigate("/patient-dashboard")
           : navigate("/doctor-dashboard");
-          window.location.reload();
+        window.location.reload();
       }
     } catch (error) {
       toast.error(error.response.data);

@@ -6,6 +6,7 @@ const userRoute = require("./routes/user.js");
 const therapyRoute = require("./routes/therapy.js");
 const cron = require("node-cron");
 const bookingRoute = require("./routes/booking.js");
+const blogsRoute = require("./routes/blogs.js");
 const port = 8000;
 const MongodbConnection = require("./connectDB.js");
 const url = process.env.MONGO_URL;
@@ -33,10 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", userRoute);
 app.use("/therapy", therapyRoute);
 app.use("/bookings", bookingRoute);
+app.use("/blogs", blogsRoute);
 app.use(express.static(path.join(_dirname, "/frontend/dist")));
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
-
 
 app.listen(port, () => console.log(`Server is running on ${port}`));

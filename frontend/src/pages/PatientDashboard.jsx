@@ -49,8 +49,6 @@ function ProgressBar({ value = 0 }) {
 export default function PatientDashboard() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [runningAuto, setRunningAuto] = useState(false);
-  const [processing, setProcessing] = useState(false);
   const [expandedBookingId, setExpandedBookingId] = useState(null);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null); // { bookingId, sessionIndex }
@@ -64,7 +62,7 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     fetchBookings();
-    // runAutoScheduleForUser(); // optional auto-run on mount — commented to avoid surprise runs
+
   }, []);
 
   async function fetchBookings() {
@@ -84,56 +82,7 @@ export default function PatientDashboard() {
     }
   }
 
-  // Run auto-schedule for the logged in user (server resolves missed sessions)
-  async function runAutoScheduleForUser() {
-    try {
-      setRunningAuto(true);
-      const res = await axios.post(
-        "http://localhost:8000/bookings/auto-schedule-run",
-        {},
-        { withCredentials: true }
-      );
-      const data = Array.isArray(res.data.bookings)
-        ? res.data.bookings
-        : bookings;
-      setBookings(data);
-      toast.success("Auto-schedule run complete");
-    } catch (err) {
-      console.error("User auto-schedule failed", err);
-      toast.error("Auto-schedule failed");
-    } finally {
-      setRunningAuto(false);
-    }
-  }
-
-  // Run auto-schedule for a single booking
-  async function runAutoScheduleForBooking(bookingId) {
-    try {
-      setProcessing(true);
-      const res = await axios.patch(
-        `http://localhost:8000/bookings/${bookingId}/auto-schedule`,
-        {},
-        { withCredentials: true }
-      );
-      const updated = res.data.booking || res.data;
-      setBookings((prev) =>
-        prev.map((b) => (b._id === updated._id ? updated : b))
-      );
-
-      toast.success("Booking auto-scheduled");
-    } catch (err) {
-      console.error("Auto-schedule failed", err);
-      toast.error("Auto-schedule failed");
-    } finally {
-      setProcessing(false);
-    }
-  }
-
-  // Mark a session status (completed / missed)
-  // We update sessions array + progress and PATCH /bookings/update/:bookingId
-
-  // Submit feedback for a session (patient feedback)
-  // We'll attach feedback to a session's patientFeedback and optional improvementRating
+ 
   async function handleSubmitModalFeedback() {
     if (!selectedSession) return;
     const { bookingId, sessionIndex } = selectedSession;
@@ -306,13 +255,7 @@ export default function PatientDashboard() {
           >
             Refresh
           </button>
-          <button
-            onClick={runAutoScheduleForUser}
-            disabled={runningAuto}
-            className="px-3 py-1 bg-teal-600 text-white rounded"
-          >
-            {runningAuto ? "Rescheduling..." : "Auto-Schedule All"}
-          </button>
+          
         </div>
       </div>
 
@@ -330,7 +273,9 @@ export default function PatientDashboard() {
       {/* charts + next session */}
       <div className="flex  w-full items-center justify-center">
         <div className="bg-white p-4 rounded-xl shadow w-full ">
-          <h3 className="font-semibold mb-2 text-center text-lg">Session Status</h3>
+          <h3 className="font-semibold mb-2 text-center text-lg">
+            Session Status
+          </h3>
           <div style={{ height: 250 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -498,13 +443,7 @@ export default function PatientDashboard() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => runAutoScheduleForBooking(b._id)}
-                      disabled={processing}
-                      className="px-2 py-1 bg-amber-500 text-white rounded text-sm"
-                    >
-                      Auto-Schedule
-                    </button>
+                   
                     <button
                       onClick={() =>
                         setExpandedBookingId(
