@@ -52,6 +52,7 @@ export default function PatientDashboard() {
   const [expandedBookingId, setExpandedBookingId] = useState(null);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null); // { bookingId, sessionIndex }
+  const [processing, setProcessing] = useState(false);
   const [modalFeedback, setModalFeedback] = useState({
     pain: 0,
     stress: 0,
