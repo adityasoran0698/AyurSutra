@@ -16,9 +16,12 @@ const Blog = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:8000/user/me", {
-          credentials: "include",
-        });
+        const res = await fetch(
+          "http://https://ayursutra-panchakarma.onrender.com//user/me",
+          {
+            credentials: "include",
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -31,7 +34,7 @@ const Blog = () => {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/blogs/all-blogs"
+          "http://https://ayursutra-panchakarma.onrender.com//blogs/all-blogs"
         );
         setBlogs(response.data.blogs || []);
       } catch (error) {
@@ -49,7 +52,7 @@ const Blog = () => {
   const handleAddBlog = async (data) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/blogs/add-blogs/${user._id}`,
+        `http://https://ayursutra-panchakarma.onrender.com//blogs/add-blogs/${user._id}`,
         data,
         { withCredentials: true }
       );
@@ -59,7 +62,9 @@ const Blog = () => {
         setShowAddModal(false);
         reset();
         // Refresh blog list
-        const updatedBlogs = await axios.get("http://localhost:8000/blogs");
+        const updatedBlogs = await axios.get(
+          "http://https://ayursutra-panchakarma.onrender.com//blogs"
+        );
         setBlogs(updatedBlogs.data.blogs || []);
       }
     } catch (error) {

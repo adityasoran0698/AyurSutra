@@ -62,15 +62,17 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     fetchBookings();
-
   }, []);
 
   async function fetchBookings() {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/bookings", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "http://https://ayursutra-panchakarma.onrender.com//bookings",
+        {
+          withCredentials: true,
+        }
+      );
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
     } catch (err) {
@@ -82,7 +84,6 @@ export default function PatientDashboard() {
     }
   }
 
- 
   async function handleSubmitModalFeedback() {
     if (!selectedSession) return;
     const { bookingId, sessionIndex } = selectedSession;
@@ -106,7 +107,7 @@ export default function PatientDashboard() {
       };
 
       const res = await axios.post(
-        `http://localhost:8000/bookings/${bookingId}/${sessionIndex}`,
+        `http://https://ayursutra-panchakarma.onrender.com//bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
@@ -255,7 +256,6 @@ export default function PatientDashboard() {
           >
             Refresh
           </button>
-          
         </div>
       </div>
 
@@ -443,7 +443,6 @@ export default function PatientDashboard() {
                   </div>
 
                   <div className="flex gap-2">
-                   
                     <button
                       onClick={() =>
                         setExpandedBookingId(

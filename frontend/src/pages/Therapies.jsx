@@ -15,7 +15,9 @@ const Therapies = () => {
   useEffect(() => {
     async function fetchTherapies() {
       try {
-        const res = await fetch("http://localhost:8000/therapy");
+        const res = await fetch(
+          "http://https://ayursutra-panchakarma.onrender.com//therapy"
+        );
         const data = await res.json();
         setTherapies(data.therapies);
         setFilteredTherapies(data.therapies);
@@ -26,9 +28,12 @@ const Therapies = () => {
 
     async function fetchUser() {
       try {
-        const res = await fetch("http://localhost:8000/user/me", {
-          credentials: "include",
-        });
+        const res = await fetch(
+          "http://https://ayursutra-panchakarma.onrender.com//user/me",
+          {
+            credentials: "include",
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);

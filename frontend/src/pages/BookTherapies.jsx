@@ -17,7 +17,9 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchTherapy() {
       try {
-        const res = await fetch(`http://localhost:8000/therapy/${id}`);
+        const res = await fetch(
+          `http://https://ayursutra-panchakarma.onrender.com//therapy/${id}`
+        );
         if (res.ok) {
           const data = await res.json();
           setTherapy(data.therapy);
@@ -35,7 +37,9 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const res = await fetch("http://localhost:8000/user/doctors");
+        const res = await fetch(
+          "http://https://ayursutra-panchakarma.onrender.com//user/doctors"
+        );
         if (res.ok) {
           const data = await res.json();
           setDoctors(data.doctors);
@@ -57,7 +61,7 @@ const BookTherapies = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/bookings",
+        "http://https://ayursutra-panchakarma.onrender.com//bookings",
         {
           therapyId: therapy._id,
           doctorId: selectedDoctor,
