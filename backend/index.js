@@ -22,11 +22,10 @@ const _dirname = path.resolve();
 // ✅ Allow frontend to send/receive cookies
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your React frontend
-    credentials: true, // IMPORTANT: allow cookies
+    origin: ["https://ayursutra-panchakarma.onrender.com"],
+    credentials: true,
   })
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
