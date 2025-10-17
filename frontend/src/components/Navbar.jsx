@@ -13,7 +13,7 @@ const Navbar = () => {
     async function fetchUser() {
       try {
         const res = await fetch(
-          "http://https://ayursutra-panchakarma.onrender.com//user/me",
+          "https://ayursutra-panchakarma.onrender.com//user/me",
           {
             method: "GET",
             credentials: "include", // send cookies

@@ -22,7 +22,7 @@ const RegisterPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://https://ayursutra-panchakarma.onrender.com//user/register",
+        "https://ayursutra-panchakarma.onrender.com//user/register",
         data
       );
       toast.success(response.data);

@@ -68,7 +68,7 @@ export default function PatientDashboard() {
     try {
       setLoading(true);
       const res = await axios.get(
-        "http://https://ayursutra-panchakarma.onrender.com//bookings",
+        "https://ayursutra-panchakarma.onrender.com//bookings",
         {
           withCredentials: true,
         }
@@ -107,7 +107,7 @@ export default function PatientDashboard() {
       };
 
       const res = await axios.post(
-        `http://https://ayursutra-panchakarma.onrender.com//bookings/${bookingId}/${sessionIndex}`,
+        `https://ayursutra-panchakarma.onrender.com//bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
