@@ -1,47 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api"; // ✅ centralized API import
 
 const Therapies = () => {
   const [therapies, setTherapies] = useState([]);
   const [filteredTherapies, setFilteredTherapies] = useState([]);
   const [selectedTherapy, setSelectedTherapy] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-
   const [user, setUser] = useState(null);
+
   const navigate = useNavigate();
 
   // Fetch therapies and user data
   useEffect(() => {
-    async function fetchTherapies() {
+    const fetchTherapies = async () => {
       try {
-        const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com/therapy"
-        );
-        const data = await res.json();
-        setTherapies(data.therapies);
-        setFilteredTherapies(data.therapies);
+        const res = await api.get("/therapy"); // ✅ centralized API
+        setTherapies(res.data.therapies);
+        setFilteredTherapies(res.data.therapies);
       } catch (err) {
-        toast.error("Failed to fetch therapies" + err.message);
+        toast.error("Failed to fetch therapies: " + (err.message || err));
       }
-    }
+    };
 
-    async function fetchUser() {
+    const fetchUser = async () => {
       try {
-        const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com/user/me",
-          {
-            credentials: "include",
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
-      } catch (err) {
+        const res = await api.get("/user/me"); // ✅ centralized API
+        setUser(res.data.user);
+      } catch {
         setUser(null);
       }
-    }
+    };
 
     fetchTherapies();
     fetchUser();
@@ -70,7 +60,7 @@ const Therapies = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="flex justify-center mb-8 ">
+      <div className="flex justify-center mb-8">
         <input
           type="text"
           placeholder="Search therapies..."
@@ -106,7 +96,6 @@ const Therapies = () => {
                 Learn More
               </button>
 
-              {/* Show Book button only for logged-in patients */}
               {user?.role === "patient" && (
                 <button
                   onClick={() => navigate(`/book-therapies/${therapy._id}`)}
@@ -124,7 +113,6 @@ const Therapies = () => {
       {selectedTherapy && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full relative border-t-4 border-teal-600">
-            {/* Close Button */}
             <button
               onClick={() => setSelectedTherapy(null)}
               className="absolute top-3 right-3 text-slate-500 hover:text-slate-700"

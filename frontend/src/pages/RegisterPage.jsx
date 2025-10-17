@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api"; // ✅ centralized API import
 
 const RegisterPage = () => {
   const {
@@ -14,27 +14,25 @@ const RegisterPage = () => {
 
   const navigate = useNavigate();
   const password = watch("password");
-  const selectedRole = watch("role"); // ✅ watch role to show doctor fields
+  const selectedRole = watch("role");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        "https://ayursutra-panchakarma.onrender.com/user/register",
-        data
-      );
+      // ✅ Use centralized API
+      const response = await api.post("/user/register", data);
       toast.success(response.data);
-      navigate("/");
+      navigate("/"); // redirect to login
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      toast.error(error?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="min-h-screen mt-5 ">
-      <div className="shadow-xl rounded-xl p-8 w-[70vh] bg-white  shadow-black">
+    <div className="min-h-screen mt-5">
+      <div className="shadow-xl rounded-xl p-8 w-[70vh] bg-white shadow-black">
         <h2 className="text-2xl font-bold text-teal-700 text-center mb-6">
           Create Your Account
         </h2>
@@ -149,7 +147,7 @@ const RegisterPage = () => {
                   validate: (value) =>
                     value === password || "Passwords do not match",
                 })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500  outline-none"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                 placeholder="Confirm your password"
               />
               <button
@@ -185,14 +183,13 @@ const RegisterPage = () => {
             )}
           </div>
 
-          {/* ✅ Doctor Fields (conditional) */}
+          {/* Doctor Fields (conditional) */}
           {selectedRole === "doctor" && (
             <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-teal-600">
                 Doctor Details
               </h3>
 
-              {/* Specialization */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Specialization
@@ -212,7 +209,6 @@ const RegisterPage = () => {
                 )}
               </div>
 
-              {/* Qualification */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Qualification
@@ -232,7 +228,6 @@ const RegisterPage = () => {
                 )}
               </div>
 
-              {/* Experience */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Experience (Years)
@@ -255,7 +250,7 @@ const RegisterPage = () => {
             </div>
           )}
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
             className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition"

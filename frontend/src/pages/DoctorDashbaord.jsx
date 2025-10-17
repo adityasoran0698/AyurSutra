@@ -1,7 +1,7 @@
 // src/pages/DoctorDashboard.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import PatientCard from "../components/PatientCard";
+import API from "../api";
 
 import {
   ResponsiveContainer,
@@ -10,9 +10,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 
 const COLORS = ["#22c55e", "#f59e0b", "#ef4444"]; // green, yellow, red
@@ -39,12 +36,7 @@ export default function DoctorDashboard() {
   async function fetchDoctorBookings() {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "https://ayursutra-panchakarma.onrender.com/user/patients",
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await API.get("/user/patients");
       const data = res.data.patients || res.data.bookings || [];
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -54,6 +46,7 @@ export default function DoctorDashboard() {
       setLoading(false);
     }
   }
+
   // Group bookings by patient
   const groupedPatients = useMemo(() => {
     const map = {};
@@ -92,14 +85,6 @@ export default function DoctorDashboard() {
   ).length;
   const missedCount = allSessions.filter((s) => s.status === "missed").length;
 
-  const pieData = [
-    { name: "Completed", value: completedCount },
-    { name: "Scheduled", value: scheduledCount },
-    { name: "Missed", value: missedCount },
-  ];
-
-  // sessions grouped by day
-  // Sessions grouped by day for next 14 days, future sessions only
   const sessionsByDay = useMemo(() => {
     const days = 14;
     const now = new Date();
@@ -143,11 +128,10 @@ export default function DoctorDashboard() {
         totalSessions: updatedSessions.length,
       };
 
-      const res = await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com/bookings/update/${bookingId}`,
-        { sessions: updatedSessions, progress: newProgress },
-        { withCredentials: true }
-      );
+      const res = await API.patch(`/bookings/update/${bookingId}`, {
+        sessions: updatedSessions,
+        progress: newProgress,
+      });
 
       const updated = res.data.booking || res.data;
       setBookings((prev) =>
@@ -164,11 +148,7 @@ export default function DoctorDashboard() {
   async function handleAutoSchedule(bookingId) {
     try {
       setProcessing(true);
-      const res = await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com/bookings/${bookingId}/auto-schedule`,
-        {},
-        { withCredentials: true }
-      );
+      const res = await API.patch(`/bookings/${bookingId}/auto-schedule`, {});
       const updated = res.data.booking || res.data;
       setBookings((prev) =>
         prev.map((b) => (b._id === bookingId ? updated : b))
@@ -183,15 +163,12 @@ export default function DoctorDashboard() {
 
   async function handleUpdateNotes(bookingId, notes) {
     try {
-      await axios.patch(
-        `https://ayursutra-panchakarma.onrender.com/bookings/update/${bookingId}`,
-        { doctorNotes: notes },
-        { withCredentials: true }
-      );
+      await API.patch(`/bookings/update/${bookingId}`, { doctorNotes: notes });
     } catch (err) {
       console.error("Failed to save doctor notes", err);
     }
   }
+
   const uniquePatientCount = useMemo(() => {
     const ids = new Set();
     bookings.forEach((b) => {
@@ -199,6 +176,7 @@ export default function DoctorDashboard() {
     });
     return ids.size;
   }, [bookings]);
+
   if (loading) return <div className="p-6">Loading doctor dashboard...</div>;
 
   return (
@@ -234,7 +212,7 @@ export default function DoctorDashboard() {
       </div>
 
       {/* Charts */}
-      <div className="w-[100%] bg-white p-4 rounded-xl shadow  ">
+      <div className="w-[100%] bg-white p-4 rounded-xl shadow">
         <div className="w-full">
           <h3 className="font-semibold mb-2">Upcoming Sessions</h3>
           <div style={{ height: 240 }}>
@@ -254,9 +232,10 @@ export default function DoctorDashboard() {
           </div>
         </div>
       </div>
+
       {/* Patients & Bookings */}
       <div className="bg-white p-4 rounded-xl shadow">
-        <h3 className="font-semibold mb-3 ">Patients & Bookings</h3>
+        <h3 className="font-semibold mb-3">Patients & Bookings</h3>
         {groupedPatients.length === 0 ? (
           <div className="text-sm text-slate-500">No patients assigned.</div>
         ) : (
@@ -276,6 +255,7 @@ export default function DoctorDashboard() {
     </div>
   );
 }
+
 function isoDate(d) {
   const dd = new Date(d);
   return dd.toISOString().slice(0, 10);

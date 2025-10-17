@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import API from "../api";
+
 
 const AddTherapyPage = () => {
   const {
@@ -13,8 +15,8 @@ const AddTherapyPage = () => {
   } = useForm();
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        `https://ayursutra-panchakarma.onrender.com/therapy/add-therapy`,
+      const response = await API.post(
+        "/therapies/add-therapy",
         data,
         {
           withCredentials: true, // needed if auth cookies are used

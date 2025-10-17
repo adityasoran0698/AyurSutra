@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import API from "../api";
 
 const Blog = () => {
   const [user, setUser] = useState(null);
@@ -33,9 +33,8 @@ const Blog = () => {
 
     const fetchBlogs = async () => {
       try {
-        const response = await axios.get(
-          "https://ayursutra-panchakarma.onrender.com/blogs/all-blogs"
-        );
+        const response = await API.get("/blogs/all-blogs");
+
         setBlogs(response.data.blogs || []);
       } catch (error) {
         toast.error("Failed to fetch blogs");
@@ -51,20 +50,16 @@ const Blog = () => {
   // 🟢 Add new blog
   const handleAddBlog = async (data) => {
     try {
-      const res = await axios.post(
-        `https://ayursutra-panchakarma.onrender.com/blogs/add-blogs/${user._id}`,
-        data,
-        { withCredentials: true }
-      );
+      const res = await API.post(`blogs/add-blogs/${user._id}`, data, {
+        withCredentials: true,
+      });
 
       if (res.status === 201 || res.status === 200) {
         toast.success("Blog added successfully!");
         setShowAddModal(false);
         reset();
         // Refresh blog list
-        const updatedBlogs = await axios.get(
-          "https://ayursutra-panchakarma.onrender.com/blogs"
-        );
+        const updatedBlogs = await API.get("/blogs/all-blogs");
         setBlogs(updatedBlogs.data.blogs || []);
       }
     } catch (error) {
@@ -222,7 +217,7 @@ const Blog = () => {
                 type="submit"
                 className="bg-amber-600 text-white px-5 py-2 rounded-lg hover:bg-amber-700 transition"
               >
-                Post Blog
+                Post 
               </button>
             </form>
           </div>

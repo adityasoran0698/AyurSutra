@@ -1,11 +1,12 @@
+// src/pages/LoginPage.jsx
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import API from "./../api"; // centralized API helper
 
 const LoginPage = () => {
-  const [role, setRole] = useState("patient"); // Default role is patient
+  const [role, setRole] = useState("patient"); // Default role
   const {
     register,
     handleSubmit,
@@ -16,20 +17,23 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        "https://ayursutra-panchakarma.onrender.com/user/login",
+      const response = await API.post(
+        "/user/login",
         { ...data, role },
         { withCredentials: true }
       );
+
       toast.success(response.data);
-      {
-        role === "patient"
-          ? navigate("/patient-dashboard")
-          : navigate("/doctor-dashboard");
-        window.location.reload();
+
+      if (role === "patient") {
+        navigate("/patient-dashboard");
+      } else {
+        navigate("/doctor-dashboard");
       }
+
+      window.location.reload();
     } catch (error) {
-      toast.error(error.response.data);
+      toast.error(error.response?.data || "Login failed!");
       reset();
     }
   };

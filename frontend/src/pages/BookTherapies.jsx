@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
+import API from "./../api";
 
 const BookTherapies = () => {
   const { id } = useParams(); // Therapy id from URL
@@ -17,13 +17,8 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchTherapy() {
       try {
-        const res = await fetch(
-          `https://ayursutra-panchakarma.onrender.com/therapy/${id}`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setTherapy(data.therapy);
-        }
+        const res = await API.get(`/therapy/${id}`);
+        setTherapy(res.data.therapy);
       } catch (err) {
         console.error("Error fetching therapy:", err);
       } finally {
@@ -37,13 +32,8 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com/user/doctors"
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setDoctors(data.doctors);
-        }
+        const res = await API.get("/user/doctors");
+        setDoctors(res.data.doctors || []);
       } catch (err) {
         console.error("Error fetching doctors:", err);
       }
@@ -60,17 +50,11 @@ const BookTherapies = () => {
     }
 
     try {
-      const response = await axios.post(
-        "https://ayursutra-panchakarma.onrender.com/bookings",
-        {
-          therapyId: therapy._id,
-          doctorId: selectedDoctor,
-          notes,
-        },
-        {
-          withCredentials: true, // ✅ If you are using cookies for auth
-        }
-      );
+      const response = await API.post("/bookings", {
+        therapyId: therapy._id,
+        doctorId: selectedDoctor,
+        notes,
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Therapy booked successfully!");
