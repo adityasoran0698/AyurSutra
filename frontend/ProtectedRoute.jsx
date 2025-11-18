@@ -1,13 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import Cookies from "js-cookie";
 
 const ProtectedRoute = ({ children }) => {
-  const token = Cookies.get("token");
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(
+          "https://ayursutra-2-tl11.onrender.com/user/me",
+          {
+            method: "GET",
+            credentials: "include", // send httpOnly cookie
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.user) {
+          setAuthenticated(true);
+        } else {
+          setAuthenticated(false);
+        }
+      } catch (err) {
+        setAuthenticated(false);
+      }
+
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!authenticated) return <Navigate to="/login" replace />;
 
   return children;
 };
