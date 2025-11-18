@@ -67,7 +67,11 @@ router.post("/login", async (req, res) => {
       return res.status(400).send("Access Denied");
 
     const token = await User.matchPasswordAndGenerateToken(email, password);
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
     return res.status(200).send("Login Successful");
   } catch (error) {
     return res.status(400).send("Login Failed!");
