@@ -1,7 +1,8 @@
 // src/pages/DoctorDashboard.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import PatientCard from "../components/PatientCard";
-import API from "../api";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 import {
   ResponsiveContainer,
@@ -36,11 +37,13 @@ export default function DoctorDashboard() {
   async function fetchDoctorBookings() {
     try {
       setLoading(true);
-      const res = await API.get("/user/patients");
+      const res = await axios.get("http://localhost:8000/user/patients", {
+        withCredentials: true,
+      });
       const data = res.data.patients || res.data.bookings || [];
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Failed to fetch doctor bookings", err);
+      toast.error("Failed to fetch doctor bookings");
       setBookings([]);
     } finally {
       setLoading(false);
@@ -128,10 +131,15 @@ export default function DoctorDashboard() {
         totalSessions: updatedSessions.length,
       };
 
-      const res = await API.patch(`/bookings/update/${bookingId}`, {
-        sessions: updatedSessions,
-        progress: newProgress,
-      });
+      const res = await axios.patch(
+        `http://localhost:8000/bookings/update/${bookingId}`,
+
+        {
+          sessions: updatedSessions,
+          progress: newProgress,
+        },
+        { withCredentials: true }
+      );
 
       const updated = res.data.booking || res.data;
       setBookings((prev) =>
@@ -144,31 +152,6 @@ export default function DoctorDashboard() {
       setProcessing(false);
     }
   }
-
-  async function handleAutoSchedule(bookingId) {
-    try {
-      setProcessing(true);
-      const res = await API.patch(`/bookings/${bookingId}/auto-schedule`, {});
-      const updated = res.data.booking || res.data;
-      setBookings((prev) =>
-        prev.map((b) => (b._id === bookingId ? updated : b))
-      );
-    } catch (err) {
-      console.error("Auto-schedule failed", err);
-      alert("Auto-schedule failed.");
-    } finally {
-      setProcessing(false);
-    }
-  }
-
-  async function handleUpdateNotes(bookingId, notes) {
-    try {
-      await API.patch(`/bookings/update/${bookingId}`, { doctorNotes: notes });
-    } catch (err) {
-      console.error("Failed to save doctor notes", err);
-    }
-  }
-
   const uniquePatientCount = useMemo(() => {
     const ids = new Set();
     bookings.forEach((b) => {
@@ -244,8 +227,6 @@ export default function DoctorDashboard() {
               key={gp.patient._id}
               patient={gp.patient}
               bookings={gp.bookings}
-              handleAutoSchedule={handleAutoSchedule}
-              handleUpdateNotes={handleUpdateNotes}
               handleUpdateSession={handleUpdateSession}
               processing={processing}
             />

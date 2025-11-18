@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../api"; // ✅ centralized API import
 
 const RegisterPage = () => {
   const {
@@ -20,11 +19,17 @@ const RegisterPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const onSubmit = async (data) => {
+    console.log(data)
     try {
       // ✅ Use centralized API
       const response = await api.post("/user/register", data);
       toast.success(response.data);
-      navigate("/"); // redirect to login
+      console.log(response)
+      {
+        data.role === "doctor"
+          ? navigate("/doctor-dashboard")
+          : navigate("/patient-dashbaord");
+      }
     } catch (error) {
       toast.error(error?.message || "Registration failed");
     }

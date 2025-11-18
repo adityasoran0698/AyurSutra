@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import API from "./../api"; // centralized API helper
+import axios from "axios";
 
 const LoginPage = () => {
   const [role, setRole] = useState("patient"); // Default role
@@ -17,8 +17,8 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await API.post(
-        "/user/login",
+      const response = await axios.post(
+        "http://localhost:8000/user/login",
         { ...data, role },
         { withCredentials: true }
       );

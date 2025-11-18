@@ -18,10 +18,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/**
- * ✅ Send In-App Notification
- * Stores inside booking.sessions[sessionIndex].notifications
- */
 async function sendInAppNotification(bookingId, sessionIndex, message) {
   try {
     await Booking.updateOne(
@@ -36,8 +32,7 @@ async function sendInAppNotification(bookingId, sessionIndex, message) {
         },
       }
     );
-  } catch (err) {
-  }
+  } catch (err) {}
 }
 
 /**
@@ -94,7 +89,7 @@ async function notifyPatient(
     await sendInAppNotification(bookingId, sessionIndex, message);
 
     // 2. SMS
-    
+
     function formatPhoneNumber(phone, countryCode = "+91") {
       if (!phone.startsWith("+")) {
         return countryCode + phone;

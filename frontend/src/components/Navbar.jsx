@@ -12,13 +12,10 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com/user/me",
-          {
-            method: "GET",
-            credentials: "include", // send cookies
-          }
-        );
+        const res = await fetch("http://localhost:8000/user/me", {
+          method: "GET",
+          credentials: "include", // send cookies
+        });
 
         if (res.ok) {
           const data = await res.json();

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import API from "./../api";
+import axios from "axios";
+import { SyncLoader } from "react-spinners";
 
 const BookTherapies = () => {
   const { id } = useParams(); // Therapy id from URL
@@ -12,15 +13,18 @@ const BookTherapies = () => {
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
+  const [isBooking, setIsBooking] = useState(false);
 
   // Fetch therapy details
   useEffect(() => {
     async function fetchTherapy() {
       try {
-        const res = await API.get(`/therapy/${id}`);
+        const res = await axios.get(`http://localhost:8000/therapy/${id}`);
         setTherapy(res.data.therapy);
       } catch (err) {
         console.error("Error fetching therapy:", err);
+        toast.error("Failed to load therapy details");
       } finally {
         setLoading(false);
       }
@@ -32,10 +36,15 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const res = await API.get("/user/doctors");
+        const res = await axios.get("http://localhost:8000/user/doctors", {
+          withCredentials: true,
+        });
         setDoctors(res.data.doctors || []);
       } catch (err) {
         console.error("Error fetching doctors:", err);
+        toast.error("Failed to load doctors");
+      } finally {
+        setLoadingDoctors(false);
       }
     }
     fetchDoctors();
@@ -49,12 +58,17 @@ const BookTherapies = () => {
       return;
     }
 
+    setIsBooking(true);
     try {
-      const response = await API.post("/bookings", {
-        therapyId: therapy._id,
-        doctorId: selectedDoctor,
-        notes,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/bookings",
+        {
+          therapyId: therapy._id,
+          doctorId: selectedDoctor,
+          notes,
+        },
+        { withCredentials: true }
+      );
 
       if (response.status === 201 || response.status === 200) {
         toast.success("Therapy booked successfully!");
@@ -65,13 +79,19 @@ const BookTherapies = () => {
       toast.error(
         err.response?.data?.message || "Booking failed! Please try again."
       );
+    } finally {
+      setIsBooking(false);
     }
   }
 
-  if (loading) {
+  // --- Loading Screens ---
+  if (loading || loadingDoctors) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-lg text-slate-700">Loading therapy details...</p>
+      <div className="flex flex-col justify-center items-center h-screen gap-4">
+        <SyncLoader color="#14b8a6" size={12} margin={5} />
+        <p className="text-lg text-slate-700">
+          {loading ? "Loading therapy details..." : "Loading doctors..."}
+        </p>
       </div>
     );
   }
@@ -168,9 +188,19 @@ const BookTherapies = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-amber-600 text-white py-2 rounded-lg font-semibold hover:bg-amber-700 transition"
+            disabled={isBooking}
+            className={`w-full flex justify-center items-center gap-2 bg-amber-600 text-white py-2 rounded-lg font-semibold hover:bg-amber-700 transition ${
+              isBooking ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Confirm Booking
+            {isBooking ? (
+              <>
+                <SyncLoader color="white" size={8} margin={3} />
+                Booking...
+              </>
+            ) : (
+              "Book Therapy"
+            )}
           </button>
         </form>
       </div>

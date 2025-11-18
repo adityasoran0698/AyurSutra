@@ -2,17 +2,30 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import ImprovementChart from "./improvmentChart";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 const PatientCard = ({
   patient,
   bookings,
-  handleAutoSchedule,
-  handleUpdateNotes,
   handleUpdateSession,
   processing,
 }) => {
   const [expanded, setExpanded] = useState(false);
-
+  const handleDeleteBooking = async (bookingId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/bookings/delete/${bookingId}`,
+        { withCredentials: true }
+      );
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error deleting booking");
+    }
+  };
+  useEffect(() => {}, []);
   return (
     <div className="border rounded-xl mb-4 bg-white shadow">
       {/* Header */}
@@ -70,45 +83,48 @@ const PatientCard = ({
                     Progress: {b.progress?.completedSessions || 0}/
                     {b.progress?.totalSessions || 0}
                   </div>
-                  <button
-                    onClick={() => handleAutoSchedule(b._id)}
-                    disabled={processing}
-                    className="px-3 py-1 bg-amber-500 text-white rounded"
-                  >
-                    Auto-Schedule
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => handleDeleteBooking(b._id)}
+                      className="text-sm bg-amber-700 text-white px-3 py-1 rounded mr-2"
+                    >
+                      Delete Booking
+                    </button>
+                  </div>
                 </div>
 
-                {/* Doctor Notes */}
-                <textarea
-                  defaultValue={b.doctorNotes || ""}
-                  onBlur={(e) => handleUpdateNotes(b._id, e.target.value)}
-                  placeholder="Add doctor notes / pre & post-procedure precautions"
-                  className="mt-2 w-full border rounded p-2 text-sm"
-                  rows={2}
-                />
+                {/* Chart Section */}
+                <div className="mt-3 flex flex-col md:flex-row md:items-center gap-6 w-full">
+                  {/* Pie Chart */}
+                  <div className="md:w-1/3 w-full flex justify-center items-center bg-white border rounded-xl shadow-sm p-4 h-84.5">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          outerRadius={80}
+                          label
+                        >
+                          {pieData.map((entry, idx) => (
+                            <Cell
+                              key={idx}
+                              fill={["#22c55e", "#f59e0b", "#ef4444"][idx]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
 
-                {/* Pie Chart */}
-                <div className="mt-3 w-48 h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        dataKey="value"
-                        nameKey="name"
-                        outerRadius={60}
-                        label
-                      >
-                        {pieData.map((entry, idx) => (
-                          <Cell
-                            key={idx}
-                            fill={["#22c55e", "#f59e0b", "#ef4444"][idx]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {/* Improvement Chart */}
+                  <div className="md:w-2/3 w-full shadow-sm ">
+                    <ImprovementChart
+                      sessions={sessions}
+                      title="Patient Progress"
+                    />
+                  </div>
                 </div>
 
                 {/* Sessions */}

@@ -1,7 +1,7 @@
 // src/pages/PatientDashboard.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import Sentiment from "sentiment";
-import api from "../api"; // ✅ centralized API import
+import axios from "axios";
 
 import {
   ResponsiveContainer,
@@ -19,6 +19,7 @@ import {
   Cell,
 } from "recharts";
 import { toast } from "react-toastify";
+import ImprovementChart from "./../components/improvmentChart";
 
 const COLORS = ["#22c55e", "#f59e0b", "#ef4444"]; // completed, scheduled, missed
 const sentimentAnalyzer = new Sentiment();
@@ -68,7 +69,7 @@ export default function PatientDashboard() {
   async function fetchBookings() {
     try {
       setLoading(true);
-      const res = await api.get("/bookings", {
+      const res = await axios.get("http://localhost:8000/bookings", {
         withCredentials: true,
       });
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
@@ -104,8 +105,8 @@ export default function PatientDashboard() {
         sleep,
       };
 
-      const res = await api.post(
-        `bookings/${bookingId}/${sessionIndex}`,
+      const res = await axios.post(
+        `http://localhost:8000/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
@@ -206,35 +207,6 @@ export default function PatientDashboard() {
     [allSessions]
   );
 
-  // Upcoming sessions list (future scheduled sessions)
-  const upcomingSessions = useMemo(() => {
-    const now = new Date();
-    return allSessions
-      .filter(
-        (s) =>
-          s.status === "scheduled" && new Date(s.sessionDate) >= startOfDay(now)
-      )
-      .sort((a, b) => new Date(a.sessionDate) - new Date(b.sessionDate));
-  }, [allSessions]);
-
-  // Chart data (upcoming sessions by day for next N days) — keep small horizon such as 14
-  const sessionsByDay = useMemo(() => {
-    const days = 14;
-    const now = new Date();
-    const map = {};
-    for (let i = 0; i < days; i++) {
-      const d = new Date(now);
-      d.setDate(now.getDate() + i);
-      map[isoDate(d)] = 0;
-    }
-    for (const s of allSessions) {
-      if (s.status !== "scheduled") continue;
-      const key = isoDate(s.sessionDate);
-      if (key in map) map[key] += 1;
-    }
-    return Object.keys(map).map((k) => ({ date: k, sessions: map[k] }));
-  }, [allSessions]);
-
   const pieData = [
     { name: "Completed", value: completedSessionsCount },
     { name: "Scheduled", value: scheduledSessionsCount },
@@ -298,95 +270,7 @@ export default function PatientDashboard() {
         <h3 className="text-lg font-semibold mb-2">
           Patient Improvement Over Sessions
         </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={improvementChartData}
-            margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-          >
-            <defs>
-              {/* Gradient for the line */}
-              <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="50%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#ef4444" />
-              </linearGradient>
-              {/* Gradient for area under line */}
-              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-                <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#ef4444" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey="session"
-              label={{
-                value: "Session",
-                position: "insideBottomRight",
-                offset: -5,
-              }}
-            />
-            <YAxis
-              domain={[0, 10]}
-              label={{
-                value: "Feedback Score",
-                angle: -90,
-                position: "outsideRight",
-              }}
-            />
-
-            <Tooltip
-              content={({ active, payload, label }) =>
-                active && payload && payload.length ? (
-                  <div className="bg-white p-3 rounded shadow border text-sm">
-                    <div>
-                      <strong>Session:</strong> {label}
-                    </div>
-
-                    <div className="mt-1">
-                      <strong>Feedback:</strong>{" "}
-                      {payload[0].payload.feedbackText}
-                    </div>
-                  </div>
-                ) : null
-              }
-            />
-
-            <Legend />
-
-            {/* Smooth line with gradient stroke */}
-            <Line
-              type="monotone"
-              dataKey="Score"
-              stroke="url(#lineGradient)"
-              strokeWidth={3}
-              dot={(props) => {
-                const { cx, cy, payload } = props;
-                return (
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={6}
-                    fill={getScoreColor(payload.Score)}
-                    stroke="#fff"
-                    strokeWidth={1.5}
-                  />
-                );
-              }}
-              activeDot={{ r: 8 }}
-              animationDuration={1500}
-            />
-
-            {/* Area under the curve */}
-            <Area
-              type="monotone"
-              stroke="none"
-              fill="url(#areaGradient)"
-              animationDuration={1500}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <ImprovementChart sessions={allSessions} title="Your Progress" />
       </div>
 
       {/* bookings list with per-booking progress + sessions grid + feedback */}

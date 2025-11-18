@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import API from "../api";
+import axios from "axios";
 
 const Blog = () => {
   const [user, setUser] = useState(null);
@@ -16,12 +16,9 @@ const Blog = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          "https://ayursutra-panchakarma.onrender.com/user/me",
-          {
-            credentials: "include",
-          }
-        );
+        const res = await fetch("http://localhost:8000/user/me", {
+          credentials: "include",
+        });
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -33,7 +30,9 @@ const Blog = () => {
 
     const fetchBlogs = async () => {
       try {
-        const response = await API.get("/blogs/all-blogs");
+        const response = await axios.get(
+          "http://localhost:8000/blogs/all-blogs"
+        );
 
         setBlogs(response.data.blogs || []);
       } catch (error) {
@@ -50,16 +49,22 @@ const Blog = () => {
   // 🟢 Add new blog
   const handleAddBlog = async (data) => {
     try {
-      const res = await API.post(`blogs/add-blogs/${user._id}`, data, {
-        withCredentials: true,
-      });
+      const res = await axios.post(
+        `http://localhost:8000/blogs/add-blogs/${user._id}`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (res.status === 201 || res.status === 200) {
         toast.success("Blog added successfully!");
         setShowAddModal(false);
         reset();
         // Refresh blog list
-        const updatedBlogs = await API.get("/blogs/all-blogs");
+        const updatedBlogs = await axios.get(
+          "http://localhost:8000/blogs/all-blogs"
+        );
         setBlogs(updatedBlogs.data.blogs || []);
       }
     } catch (error) {
@@ -217,7 +222,7 @@ const Blog = () => {
                 type="submit"
                 className="bg-amber-600 text-white px-5 py-2 rounded-lg hover:bg-amber-700 transition"
               >
-                Post 
+                Post
               </button>
             </form>
           </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../api"; // ✅ centralized API import
+import axios from "axios";
 
 const Therapies = () => {
   const [therapies, setTherapies] = useState([]);
@@ -16,7 +16,7 @@ const Therapies = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await api.get("/therapy"); // ✅ centralized API
+        const res = await axios.get("http://localhost:8000/therapy");
         setTherapies(res.data.therapies);
         setFilteredTherapies(res.data.therapies);
       } catch (err) {
@@ -26,7 +26,9 @@ const Therapies = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await api.get("/user/me"); // ✅ centralized API
+        const res = await axios.get("http://localhost:8000/user/me", {
+          withCredentials: true,
+        });
         setUser(res.data.user);
       } catch {
         setUser(null);

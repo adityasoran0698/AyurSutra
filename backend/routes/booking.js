@@ -40,7 +40,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Allow doctor to update patient progress
 router.patch("/update/:bookingId", async (req, res) => {
   try {
     const user = validateToken(req.cookies.token);
@@ -94,6 +93,15 @@ router.post("/:bookingId/:sessionIndex", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+router.delete("/delete/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const booking = await Booking.findByIdAndDelete(id);
+    return res.status(200).json({ message: "Deleted Successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to delete booking" });
   }
 });
 
