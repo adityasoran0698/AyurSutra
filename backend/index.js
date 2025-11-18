@@ -18,12 +18,24 @@ MongodbConnection(url);
 
 // ✅ Middleware
 app.use(cookieParser());
-const _dirname = path.resolve();
 // ✅ Allow frontend to send/receive cookies
+const allowedOrigins = [
+  "https://ayur-sutra-coral.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: ["https://ayur-sutra-coral.vercel.app", "http://localhost:5173"],
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
+// ⭐ FIX for preflight requests
+app.options(
+  "*",
+  cors({
+    origin: allowedOrigins,
     credentials: true,
   })
 );
