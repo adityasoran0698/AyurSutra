@@ -21,12 +21,12 @@ const RegisterPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const onSubmit = async (data) => {
-    setLoading(true);
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/register",
+        "http://localhost:8000/user/register",
         data
       );
+      setLoading(true);
 
       toast.success(response.data);
 
@@ -35,6 +35,8 @@ const RegisterPage = () => {
         : navigate("/patient-dashboard");
     } catch (error) {
       toast.error(error?.response?.data || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 

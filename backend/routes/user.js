@@ -66,12 +66,13 @@ router.post("/login", async (req, res) => {
     if (user.role === "patient" && role === "doctor")
       return res.status(400).send("Access Denied");
 
-    const token = await User.matchPasswordAndGenerateToken(email, password);
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
+    let token;
+    try {
+      token = await User.matchPasswordAndGenerateToken(email, password);
+    } catch (err) {
+      return res.status(400).send("Incorrect email or password");
+    }
+    res.cookie("token", token);
     return res.status(200).send("Login Successful");
   } catch (error) {
     return res.status(400).send("Login Failed!");

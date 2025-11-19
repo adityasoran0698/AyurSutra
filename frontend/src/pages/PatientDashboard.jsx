@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import { toast } from "react-toastify";
 import ImprovementChart from "./../components/improvmentChart";
+import { SyncLoader } from "react-spinners";
 
 const COLORS = ["#22c55e", "#f59e0b", "#ef4444"];
 const sentimentAnalyzer = new Sentiment();
@@ -69,12 +70,9 @@ export default function PatientDashboard() {
   async function fetchBookings() {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "https://ayursutra-2-tl11.onrender.com/bookings",
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.get("http://localhost:8000/bookings", {
+        withCredentials: true,
+      });
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
     } catch {
@@ -108,7 +106,7 @@ export default function PatientDashboard() {
       };
 
       await axios.post(
-        `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
+        `http://localhost:8000/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
@@ -202,7 +200,13 @@ export default function PatientDashboard() {
     { name: "Missed", value: missedSessionsCount },
   ];
 
-  if (loading) return <div className="p-6">Loading patient dashboard...</div>;
+  if (loading)
+    return (
+      <div className="p-6">
+        {" "}
+        <SyncLoader color="black" size={8} />
+      </div>
+    );
 
   return (
     <div className="p-4 sm:p-6 space-y-6 w-full lg:w-[80vw] mx-auto">
@@ -324,7 +328,7 @@ export default function PatientDashboard() {
                         expandedBookingId === b._id ? null : b._id
                       )
                     }
-                    className="px-2 py-1 bg-slate-200 rounded text-sm w-full sm:w-auto"
+                    className=" px-3 py-1  bg-slate-200 rounded text-sm w-full sm:w-auto"
                   >
                     {expandedBookingId === b._id ? "Collapse" : "See Status"}
                   </button>

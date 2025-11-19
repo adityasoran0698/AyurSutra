@@ -65,7 +65,7 @@ UserSchema.static(
 
     const isMatch = bcryptjs.compareSync(password, user.password);
     if (!isMatch) {
-      throw new Error("Incorrect Password");
+      throw new Error("Incorrect email or password");
     }
     return generateToken(user);
   }
