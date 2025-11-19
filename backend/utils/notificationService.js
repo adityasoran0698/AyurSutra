@@ -1,15 +1,19 @@
 const User = require("../models/user");
+const Booking = require("../models/booking");
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
-const Booking = require("../models/booking");
 
-// ✅ Twilio Config (for SMS)
+// ---------------------------------------
+// TWILIO CLIENT
+// ---------------------------------------
 const twilioClient = twilio(
   process.env.TWILIO_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
 
-// ✅ Nodemailer Config (with Gmail SMTP / App Password)
+// ---------------------------------------
+// NODEMAILER TRANSPORT
+// ---------------------------------------
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -18,6 +22,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ---------------------------------------
+// HELPERS
+// ---------------------------------------
+
+/** Format phone number */
+const formatPhoneNumber = (phone, code = "+91") =>
+  phone.startsWith("+") ? phone : code + phone;
+
+/** In-App Notification */
 async function sendInAppNotification(bookingId, sessionIndex, message) {
   try {
     await Booking.updateOne(
@@ -32,28 +45,26 @@ async function sendInAppNotification(bookingId, sessionIndex, message) {
         },
       }
     );
-  } catch (err) {}
+  } catch (err) {
+    console.error("❌ In-app notification error:", err.message);
+  }
 }
 
-/**
- * ✅ Send SMS via Twilio
- */
+/** SMS Notification */
 async function sendSMS(to, message) {
   try {
     await twilioClient.messages.create({
       body: message,
-      from: process.env.TWILIO_PHONE, // Twilio number
-      to, // patient’s phone
+      from: process.env.TWILIO_PHONE,
+      to,
     });
-    console.log("📩 SMS sent to", to);
+    console.log("📩 SMS sent:", to);
   } catch (err) {
-    console.error("❌ SMS send error:", err.message);
+    console.error("❌ SMS error:", err.message);
   }
 }
 
-/**
- * ✅ Send Email via Nodemailer
- */
+/** Email Notification */
 async function sendEmail(to, subject, message) {
   try {
     await transporter.sendMail({
@@ -62,15 +73,17 @@ async function sendEmail(to, subject, message) {
       subject,
       text: message,
     });
-    console.log("📧 Email sent to", to);
+
+    console.log("📧 Email sent:", to);
   } catch (err) {
-    console.error("❌ Email send error:", err.message);
+    console.error("❌ Email error:", err.message);
   }
 }
 
-/**
- * ✅ Master function: Notify patient via In-App, SMS, Email
- */
+// ---------------------------------------
+// MAIN: Notify Patient (RUNS IN BACKGROUND)
+// ---------------------------------------
+
 async function notifyPatient(
   bookingId,
   sessionIndex,
@@ -80,37 +93,43 @@ async function notifyPatient(
   try {
     const booking = await Booking.findById(bookingId).populate("patientId");
     if (!booking || !booking.patientId) {
-      throw new Error("Booking or patient not found");
+      console.error("❌ Patient not found for booking", bookingId);
+      return;
     }
 
     const patient = booking.patientId;
 
-    // 1. In-App
-    await sendInAppNotification(bookingId, sessionIndex, message);
+    // 👉 RUN ALL NOTIFICATIONS IN PARALLEL — NON BLOCKING!
+    const tasks = [];
 
-    // 2. SMS
+    // In-App (always)
+    tasks.push(sendInAppNotification(bookingId, sessionIndex, message));
 
-    function formatPhoneNumber(phone, countryCode = "+91") {
-      if (!phone.startsWith("+")) {
-        return countryCode + phone;
-      }
-      return phone;
-    }
-
+    // SMS (if phone available)
     if (patient.phoneNumber) {
-      const formattedPhone = formatPhoneNumber(patient.phoneNumber); // ✅ capture return value
-      await sendSMS(formattedPhone, message); // ✅ send formatted number
+      const phone = formatPhoneNumber(patient.phoneNumber);
+      tasks.push(sendSMS(phone, message));
     }
 
-    // 3. Email
+    // Email (if email available)
     if (patient.email) {
-      await sendEmail(patient.email, subject, message);
+      tasks.push(sendEmail(patient.email, subject, message));
     }
 
-    console.log(`✅ Notifications sent to patient: ${patient.fullname}`);
+    // ✔ Do NOT await — let them run asynchronously
+    Promise.allSettled(tasks).then((results) => {
+      console.log("📨 Notification tasks finished:", results.length);
+    });
+
+    console.log(`🚀 Notification queued for: ${patient.fullname}`);
   } catch (err) {
-    console.error("❌ Notification error:", err.message);
+    console.error("❌ notifyPatient error:", err.message);
   }
 }
 
-module.exports = { sendInAppNotification, sendSMS, sendEmail, notifyPatient };
+module.exports = {
+  sendInAppNotification,
+  sendSMS,
+  sendEmail,
+  notifyPatient,
+};

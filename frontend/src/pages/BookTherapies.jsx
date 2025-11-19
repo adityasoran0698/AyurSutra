@@ -172,18 +172,7 @@ const BookTherapies = () => {
             </select>
           </div>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-slate-700 font-medium mb-1">
-              Notes (Optional)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any special request or health condition"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
-            />
-          </div>
+
 
           {/* Submit Button */}
           <button
