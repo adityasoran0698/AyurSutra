@@ -74,8 +74,8 @@ router.post("/login", async (req, res) => {
     }
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ❗ localhost ONLY
-      sameSite: "lax", // ❗ localhost ONLY
+      secure: true,
+      sameSite: "none",
     });
     return res.status(200).send("Login Successful");
   } catch (error) {

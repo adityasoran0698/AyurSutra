@@ -15,7 +15,7 @@ router.post("/add-therapy", async (req, res) => {
       price: body.price,
       createdBy: user._id,
     });
-await therapy.populate("createdBy", "fullname email phoneNumber role");
+    await therapy.populate("createdBy", "fullname email phoneNumber role");
 
     return res.status(200).json({ message: "Therapy Added Successfully!" });
   } catch (error) {
