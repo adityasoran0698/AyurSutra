@@ -195,8 +195,7 @@ const BookTherapies = () => {
           >
             {isBooking ? (
               <>
-                <SyncLoader color="white" size={8} />
-                Booking...
+                Booking <SyncLoader color="white" size={8} />
               </>
             ) : (
               "Book Therapy"

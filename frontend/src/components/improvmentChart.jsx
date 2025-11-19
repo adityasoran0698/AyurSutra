@@ -73,80 +73,69 @@ const ImprovementChart = ({
     feedbackText: session.feedbackText || "No feedback",
   }));
 
+  // wider chart for small screens
+  const chartWidth = Math.max(600, sessions.length * 100);
+
   return (
-    <div className="bg-white p-3 sm:p-4 rounded-xl shadow border w-full overflow-x-auto">
+    <div className="bg-white p-3 sm:p-4 rounded-xl shadow border w-full">
       <h4 className="text-base sm:text-md font-semibold mb-3">{title}</h4>
 
-      {/* Responsive wrapper prevents chart overflow on small screens */}
-      <div className="w-full" style={{ height: 250, minWidth: "280px" }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-                <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#ef4444" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
+      {/* Scrollable wrapper to avoid congestion on mobile */}
+      <div className="w-full overflow-x-auto" style={{ height: 260 }}>
+        <div style={{ width: chartWidth, height: "100%" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
+                  <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
 
-            <XAxis
-              dataKey="session"
-              tick={{ fontSize: 10 }}
-              label={{
-                value: "Session",
-                position: "insideBottomRight",
-                fontSize: 10,
-              }}
-            />
-            <YAxis
-              domain={[0, 10]}
-              tick={{ fontSize: 10 }}
-              label={{
-                value: "Score",
-                angle: -90,
-                position: "outsideRight",
-                fontSize: 10,
-              }}
-            />
+              <XAxis dataKey="session" tick={{ fontSize: 10 }} />
+              <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} />
 
-            <Tooltip
-              wrapperStyle={{
-                fontSize: "12px",
-                maxWidth: "200px",
-                whiteSpace: "normal",
-              }}
-              content={({ active, payload, label }) =>
-                active && payload && payload.length ? (
-                  <div className="bg-white p-2 rounded shadow border text-xs sm:text-sm max-w-[200px] break-words">
-                    <strong>Session:</strong> {label}
-                    <br />
-                    <strong>Feedback:</strong> {payload[0].payload.feedbackText}
-                  </div>
-                ) : null
-              }
-            />
+              <Tooltip
+                wrapperStyle={{
+                  fontSize: "12px",
+                  maxWidth: "200px",
+                  whiteSpace: "normal",
+                }}
+                content={({ active, payload, label }) =>
+                  active && payload && payload.length ? (
+                    <div className="bg-white p-2 rounded shadow border text-xs sm:text-sm max-w-[200px] break-words">
+                      <strong>Session:</strong> {label}
+                      <br />
+                      <strong>Feedback:</strong>{" "}
+                      {payload[0].payload.feedbackText}
+                    </div>
+                  ) : null
+                }
+              />
 
-            <Area
-              type="monotone"
-              dataKey="score"
-              stroke="url(#areaGradient)"
-              fill="url(#areaGradient)"
-              strokeWidth={3}
-              dot={(props) => (
-                <circle
-                  cx={props.cx}
-                  cy={props.cy}
-                  r={5}
-                  fill={getScoreColor(props.payload.score)}
-                  stroke="#fff"
-                  strokeWidth={1.5}
-                />
-              )}
-              activeDot={{ r: 7 }}
-              animationDuration={1000}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+              <Area
+                type="monotone"
+                dataKey="score"
+                stroke="url(#areaGradient)"
+                fill="url(#areaGradient)"
+                strokeWidth={3}
+                dot={(props) => (
+                  <circle
+                    cx={props.cx}
+                    cy={props.cy}
+                    r={5}
+                    fill={getScoreColor(props.payload.score)}
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                  />
+                )}
+                activeDot={{ r: 7 }}
+                animationDuration={1000}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

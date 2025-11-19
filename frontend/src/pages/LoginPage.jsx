@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { SyncLoader } from "react-spinners";
 
 const LoginPage = () => {
   const [role, setRole] = useState("patient"); // Default role
@@ -14,8 +15,10 @@ const LoginPage = () => {
     reset,
   } = useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://ayursutra-2-tl11.onrender.com/user/login",
@@ -143,9 +146,17 @@ const LoginPage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
+            disabled={loading}
+            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm sm:text-base flex justify-center items-center gap-2"
           >
-            Login
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <span>Logging in</span>
+                <SyncLoader color="white" size={8} />
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
 
           {/* Redirect to Register */}

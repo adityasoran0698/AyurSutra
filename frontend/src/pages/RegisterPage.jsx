@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { SyncLoader } from "react-spinners";
 
 const RegisterPage = () => {
   const {
@@ -15,11 +16,12 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const password = watch("password");
   const selectedRole = watch("role");
-
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const response = await axios.post(
         "https://ayursutra-2-tl11.onrender.com/user/register",
@@ -265,9 +267,17 @@ const RegisterPage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+            disabled={loading}
+            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition flex justify-center items-center gap-2"
           >
-            Register
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <span>Registering</span>
+                <SyncLoader color="white" size={8} />
+              </div>
+            ) : (
+              "Register"
+            )}
           </button>
 
           {/* Redirect */}
