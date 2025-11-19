@@ -13,7 +13,7 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch("http://localhost:8000/user/me", {
+        const res = await fetch("https://ayursutra-2-tl11.onrender.com/user/me", {
           method: "GET",
           credentials: "include",
         });
