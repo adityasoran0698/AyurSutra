@@ -16,7 +16,7 @@ const PatientCard = ({
   const handleDeleteBooking = async (bookingId) => {
     try {
       const response = await axios.delete(
-        `https://ayursutra-2-tl11.onrender.com/bookings/delete/${bookingId}`,
+        `http://localhost:8000/bookings/delete/${bookingId}`,
         { withCredentials: true }
       );
       toast.success(response.data.message);
