@@ -18,7 +18,7 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/user/login",
+        "https://ayursutra-2-tl11.onrender.com/user/login",
         { ...data, role },
         { withCredentials: true }
       );
