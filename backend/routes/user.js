@@ -72,7 +72,11 @@ router.post("/login", async (req, res) => {
     } catch (err) {
       return res.status(400).send("Incorrect email or password");
     }
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // ❗ localhost ONLY
+      sameSite: "lax", // ❗ localhost ONLY
+    });
     return res.status(200).send("Login Successful");
   } catch (error) {
     return res.status(400).send("Login Failed!");
