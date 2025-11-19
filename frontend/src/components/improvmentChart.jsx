@@ -27,9 +27,9 @@ const sleepToNumber = (sleep) => {
 };
 
 const getScoreColor = (score) => {
-  if (score >= 7) return "#22c55e"; // good
-  if (score >= 4) return "#f59e0b"; // medium
-  return "#ef4444"; // low
+  if (score >= 7) return "#22c55e";
+  if (score >= 4) return "#f59e0b";
+  return "#ef4444";
 };
 
 const calculateSessionScore = (session) => {
@@ -55,7 +55,7 @@ const calculateSessionScore = (session) => {
   return Math.round(totalScore * 10) / 10;
 };
 
-// --- Reusable Component ---
+// --- Responsive Component ---
 const ImprovementChart = ({
   sessions = [],
   title = "Improvement Over Sessions",
@@ -74,9 +74,11 @@ const ImprovementChart = ({
   }));
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow border">
-      <h4 className="text-md font-semibold mb-3">{title}</h4>
-      <div style={{ height: 250 }}>
+    <div className="bg-white p-3 sm:p-4 rounded-xl shadow border w-full overflow-x-auto">
+      <h4 className="text-base sm:text-md font-semibold mb-3">{title}</h4>
+
+      {/* Responsive wrapper prevents chart overflow on small screens */}
+      <div className="w-full" style={{ height: 250, minWidth: "280px" }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
@@ -89,16 +91,33 @@ const ImprovementChart = ({
 
             <XAxis
               dataKey="session"
-              label={{ value: "Session", position: "insideBottomRight" }}
+              tick={{ fontSize: 10 }}
+              label={{
+                value: "Session",
+                position: "insideBottomRight",
+                fontSize: 10,
+              }}
             />
             <YAxis
               domain={[0, 10]}
-              label={{ value: "Score", angle: -90, position: "outsideRight" }}
+              tick={{ fontSize: 10 }}
+              label={{
+                value: "Score",
+                angle: -90,
+                position: "outsideRight",
+                fontSize: 10,
+              }}
             />
+
             <Tooltip
+              wrapperStyle={{
+                fontSize: "12px",
+                maxWidth: "200px",
+                whiteSpace: "normal",
+              }}
               content={({ active, payload, label }) =>
                 active && payload && payload.length ? (
-                  <div className="bg-white p-2 rounded shadow border text-sm">
+                  <div className="bg-white p-2 rounded shadow border text-xs sm:text-sm max-w-[200px] break-words">
                     <strong>Session:</strong> {label}
                     <br />
                     <strong>Feedback:</strong> {payload[0].payload.feedbackText}
@@ -106,6 +125,7 @@ const ImprovementChart = ({
                 ) : null
               }
             />
+
             <Area
               type="monotone"
               dataKey="score"
@@ -116,13 +136,13 @@ const ImprovementChart = ({
                 <circle
                   cx={props.cx}
                   cy={props.cy}
-                  r={6}
+                  r={5}
                   fill={getScoreColor(props.payload.score)}
                   stroke="#fff"
                   strokeWidth={1.5}
                 />
               )}
-              activeDot={{ r: 8 }}
+              activeDot={{ r: 7 }}
               animationDuration={1000}
             />
           </AreaChart>
