@@ -5,7 +5,7 @@ import axios from "axios";
 import { SyncLoader } from "react-spinners";
 
 const BookTherapies = () => {
-  const { id } = useParams(); // Therapy id from URL
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [therapy, setTherapy] = useState(null);
@@ -16,7 +16,7 @@ const BookTherapies = () => {
   const [loadingDoctors, setLoadingDoctors] = useState(true);
   const [isBooking, setIsBooking] = useState(false);
 
-  // Fetch therapy details
+  // Fetch therapy
   useEffect(() => {
     async function fetchTherapy() {
       try {
@@ -25,7 +25,6 @@ const BookTherapies = () => {
         );
         setTherapy(res.data.therapy);
       } catch (err) {
-        console.error("Error fetching therapy:", err);
         toast.error("Failed to load therapy details");
       } finally {
         setLoading(false);
@@ -46,7 +45,6 @@ const BookTherapies = () => {
         );
         setDoctors(res.data.doctors || []);
       } catch (err) {
-        console.error("Error fetching doctors:", err);
         toast.error("Failed to load doctors");
       } finally {
         setLoadingDoctors(false);
@@ -59,7 +57,7 @@ const BookTherapies = () => {
     e.preventDefault();
 
     if (!selectedDoctor) {
-      toast.error("Please select a doctor before booking.");
+      toast.error("Please select a doctor.");
       return;
     }
 
@@ -75,25 +73,22 @@ const BookTherapies = () => {
         { withCredentials: true }
       );
 
-      if (response.status === 201 || response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         toast.success("Therapy booked successfully!");
         navigate("/therapies");
       }
     } catch (err) {
-      console.error("Error booking therapy:", err);
-      toast.error(
-        err.response?.data?.message || "Booking failed! Please try again."
-      );
+      toast.error(err.response?.data?.message || "Booking failed!");
     } finally {
       setIsBooking(false);
     }
   }
 
-  // --- Loading Screens ---
+  // Loading screens
   if (loading || loadingDoctors) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen gap-4">
-        <SyncLoader color="#14b8a6" size={12} margin={5} />
+      <div className="flex flex-col justify-center items-center min-h-screen gap-4 p-4 text-center">
+        <SyncLoader color="#14b8a6" size={12} />
         <p className="text-lg text-slate-700">
           {loading ? "Loading therapy details..." : "Loading doctors..."}
         </p>
@@ -103,15 +98,15 @@ const BookTherapies = () => {
 
   if (!therapy) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center min-h-screen p-4">
         <p className="text-lg text-red-600">Therapy not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen justify-center py-10 px-4 w-[75vh]">
-      <div className="bg-white shadow-2xl rounded-xl p-8 w-full border border-slate-200">
+    <div className="min-h-screen flex justify-center py-10 px-4">
+      <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-xl border border-slate-200">
         <h1 className="text-3xl font-bold text-teal-700 mb-6 text-center">
           Book Therapy
         </h1>
@@ -200,7 +195,7 @@ const BookTherapies = () => {
           >
             {isBooking ? (
               <>
-                <SyncLoader color="white" size={8} margin={3} />
+                <SyncLoader color="white" size={8} />
                 Booking...
               </>
             ) : (

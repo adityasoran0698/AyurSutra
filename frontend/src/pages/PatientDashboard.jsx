@@ -1,4 +1,4 @@
-// src/pages/PatientDashboard.jsx
+// --- PatientDashboard.jsx (Responsive Version) ---
 import React, { useEffect, useMemo, useState } from "react";
 import Sentiment from "sentiment";
 import axios from "axios";
@@ -21,27 +21,27 @@ import {
 import { toast } from "react-toastify";
 import ImprovementChart from "./../components/improvmentChart";
 
-const COLORS = ["#22c55e", "#f59e0b", "#ef4444"]; // completed, scheduled, missed
+const COLORS = ["#22c55e", "#f59e0b", "#ef4444"];
 const sentimentAnalyzer = new Sentiment();
 
 function SmallStat({ label, value, hint }) {
   return (
-    <div className="p-4 rounded-xl bg-white shadow-sm border">
+    <div className="p-4 rounded-xl bg-white shadow-sm border w-full">
       <div className="text-sm text-slate-500">{label}</div>
-      <div className="text-2xl font-bold text-slate-800 mt-1">{value}</div>
+      <div className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">
+        {value}
+      </div>
       {hint && <div className="text-xs text-slate-400 mt-1">{hint}</div>}
     </div>
   );
 }
 
 function ProgressBar({ value = 0 }) {
-  // value: 0-100
   return (
     <div className="w-full bg-slate-100 rounded h-3 overflow-hidden">
       <div
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600"
-        aria-valuenow={value}
       />
     </div>
   );
@@ -52,7 +52,7 @@ export default function PatientDashboard() {
   const [loading, setLoading] = useState(true);
   const [expandedBookingId, setExpandedBookingId] = useState(null);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
-  const [selectedSession, setSelectedSession] = useState(null); // { bookingId, sessionIndex }
+  const [selectedSession, setSelectedSession] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [modalFeedback, setModalFeedback] = useState({
     pain: 0,
@@ -77,8 +77,7 @@ export default function PatientDashboard() {
       );
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
-    } catch (err) {
-      console.error("Failed to fetch bookings", err);
+    } catch {
       toast.error("Failed to load bookings");
       setBookings([]);
     } finally {
@@ -88,8 +87,8 @@ export default function PatientDashboard() {
 
   async function handleSubmitModalFeedback() {
     if (!selectedSession) return;
-    const { bookingId, sessionIndex } = selectedSession;
 
+    const { bookingId, sessionIndex } = selectedSession;
     const { feedbackText, pain, stress, energy, sleep } = modalFeedback;
 
     if (!feedbackText || feedbackText.trim().length < 3) {
@@ -108,47 +107,38 @@ export default function PatientDashboard() {
         sleep,
       };
 
-      const res = await axios.post(
+      await axios.post(
         `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
 
       toast.success("Feedback submitted successfully!");
+
       setFeedbackModalOpen(false);
       setSelectedSession(null);
 
-      // update UI locally
+      // update UI
       setBookings((prev) =>
         prev.map((b) =>
           b._id === bookingId
             ? {
                 ...b,
                 sessions: b.sessions.map((s, i) =>
-                  i === sessionIndex
-                    ? {
-                        ...s,
-                        feedbackText: feedbackText.trim(),
-                        pain: Number(pain),
-                        stress: Number(stress),
-                        energy: Number(energy),
-                        sleep,
-                      }
-                    : s
+                  i === sessionIndex ? { ...s, ...payload } : s
                 ),
               }
             : b
         )
       );
     } catch (err) {
-      console.error("Feedback submit error", err);
       toast.error(err.response?.data?.message || "Failed to submit feedback");
     } finally {
       setProcessing(false);
     }
   }
 
-  // Derived data: flatten sessions for charts/metrics
+  // flatten sessions
   const allSessions = useMemo(() => {
     if (!Array.isArray(bookings)) return [];
     return bookings.flatMap((b) =>
@@ -156,11 +146,10 @@ export default function PatientDashboard() {
         ...s,
         bookingId: b._id,
         therapyName: b.therapyId?.name,
-        doctor: b.doctorId,
       }))
     );
   }, [bookings]);
-  // Prepare feedback for visualization
+
   const calculateSessionScore = (session) => {
     const {
       pain = 5,
@@ -170,23 +159,23 @@ export default function PatientDashboard() {
       feedbackText = "",
     } = session;
 
-    // Normalize numeric fields to 0-10
-    const painScore = 10 - pain; // less pain = better
-    const stressScore = 10 - stress; // less stress = better
-    const energyScore = energy; // higher energy = better
+    const painScore = 10 - pain;
+    const stressScore = 10 - stress;
+    const energyScore = energy;
     const sleepScore = sleepToNumber(sleep);
 
-    // Analyze textual feedback using sentiment
     const sentiment = sentimentAnalyzer.analyze(feedbackText);
-    const sentimentScore = ((sentiment.comparative + 1) / 2) * 10; // -1 to 1 -> 0 to 10
+    const sentimentScore = ((sentiment.comparative + 1) / 2) * 10;
 
-    // Average all metrics
-    const totalScore =
-      (painScore + stressScore + energyScore + sleepScore + sentimentScore) / 5;
-
-    return Math.round(totalScore * 10) / 10; // round to 1 decimal
+    return (
+      Math.round(
+        ((painScore + stressScore + energyScore + sleepScore + sentimentScore) /
+          5) *
+          10
+      ) / 10
+    );
   };
-  // AI-based improvement chart
+
   const improvementChartData = useMemo(() => {
     return bookings.flatMap((b) =>
       (b.sessions || []).map((s, idx) => ({
@@ -197,18 +186,15 @@ export default function PatientDashboard() {
     );
   }, [bookings]);
 
-  const completedSessionsCount = useMemo(
-    () => allSessions.filter((s) => s.status === "completed").length,
-    [allSessions]
-  );
-  const scheduledSessionsCount = useMemo(
-    () => allSessions.filter((s) => s.status === "scheduled").length,
-    [allSessions]
-  );
-  const missedSessionsCount = useMemo(
-    () => allSessions.filter((s) => s.status === "missed").length,
-    [allSessions]
-  );
+  const completedSessionsCount = allSessions.filter(
+    (s) => s.status === "completed"
+  ).length;
+  const scheduledSessionsCount = allSessions.filter(
+    (s) => s.status === "scheduled"
+  ).length;
+  const missedSessionsCount = allSessions.filter(
+    (s) => s.status === "missed"
+  ).length;
 
   const pieData = [
     { name: "Completed", value: completedSessionsCount },
@@ -219,21 +205,21 @@ export default function PatientDashboard() {
   if (loading) return <div className="p-6">Loading patient dashboard...</div>;
 
   return (
-    <div className="p-6 space-y-6 w-[80vw]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Patient Dashboard</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={fetchBookings}
-            className="px-3 py-1 bg-slate-200 rounded"
-          >
-            Refresh
-          </button>
-        </div>
+    <div className="p-4 sm:p-6 space-y-6 w-full lg:w-[80vw] mx-auto">
+      {/* TOP BAR */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold">Patient Dashboard</h1>
+
+        <button
+          onClick={fetchBookings}
+          className="px-3 py-1 bg-slate-200 rounded w-full sm:w-auto"
+        >
+          Refresh
+        </button>
       </div>
 
-      {/* top KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <SmallStat label="Upcoming Sessions" value={scheduledSessionsCount} />
         <SmallStat label="Completed Sessions" value={completedSessionsCount} />
         <SmallStat label="Missed Sessions" value={missedSessionsCount} />
@@ -243,14 +229,14 @@ export default function PatientDashboard() {
         />
       </div>
 
-      {/* charts + next session */}
-      <div className="flex  w-full items-center justify-center">
+      {/* SESSION PIE CHART */}
+      <div className="flex justify-center">
         <div className="bg-white p-4 rounded-xl shadow w-full ">
           <h3 className="font-semibold mb-2 text-center text-lg">
             Session Status
           </h3>
-          <div style={{ height: 250 }}>
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-56">
+            <ResponsiveContainer>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -269,38 +255,42 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
+
+      {/* IMPROVEMENT CHART */}
       <div className="mt-4 bg-white p-4 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-2">
           Patient Improvement Over Sessions
         </h3>
-        <ImprovementChart sessions={allSessions} title="Your Progress" />
+        <div className="overflow-x-auto">
+          <ImprovementChart sessions={allSessions} title="Your Progress" />
+        </div>
       </div>
 
-      {/* bookings list with per-booking progress + sessions grid + feedback */}
+      {/* BOOKINGS */}
       <div className="bg-white p-4 rounded-xl shadow">
         <h3 className="font-semibold mb-3">Your Bookings & Progress</h3>
 
         {bookings.length === 0 ? (
-          <div className="text-sm text-slate-500">No bookings yet.</div>
+          <p className="text-sm text-slate-500">No bookings yet.</p>
         ) : (
           bookings.map((b) => {
             const completed = b.progress?.completedSessions || 0;
-            const total =
-              b.progress?.totalSessions || (b.sessions ? b.sessions.length : 0);
+            const total = b.sessions?.length || 0;
             const percent =
               total === 0 ? 0 : Math.round((completed / total) * 100);
 
             return (
               <div key={b._id} className="border-b last:border-0 py-4">
-                <div className="flex items-start justify-between gap-4">
+                {/* HEADER */}
+                <div className="flex flex-col lg:flex-row justify-between gap-4">
                   <div>
                     <div className="text-lg font-semibold">
                       {b.therapyId?.name || "Therapy"}
                     </div>
                     <div className="text-sm text-slate-500">
-                      Doctor: {b.doctorId?.fullname || "—"} • Booked on:{" "}
-                      {new Date(b.createdAt).toLocaleDateString()} • Starts on:{" "}
-                      {b.sessions && b.sessions.length > 0
+                      Doctor: {b.doctorId?.fullname || "—"} • Booked:{" "}
+                      {new Date(b.createdAt).toLocaleDateString()} • Starts:{" "}
+                      {b.sessions?.length > 0
                         ? new Date(
                             b.sessions[0].sessionDate
                           ).toLocaleDateString()
@@ -308,7 +298,7 @@ export default function PatientDashboard() {
                     </div>
                   </div>
 
-                  <div className="w-48">
+                  <div className="w-full lg:w-48">
                     <div className="text-xs text-slate-500">Progress</div>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-full">
@@ -317,40 +307,37 @@ export default function PatientDashboard() {
                       <div className="text-sm font-medium">{percent}%</div>
                     </div>
                     <div className="text-xs text-slate-400 mt-1">
-                      {completed}/{total} sessions completed
+                      {completed}/{total} completed
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="text-sm text-slate-600">
+                {/* NOTES + BUTTON */}
+                <div className="mt-3 flex flex-col sm:flex-row justify-between gap-2">
+                  <p className="text-sm text-slate-600 break-words w-full">
                     {b.notes || b.patientNotes || ""}
-                  </div>
+                  </p>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setExpandedBookingId(
-                          expandedBookingId === b._id ? null : b._id
-                        )
-                      }
-                      className="px-2 py-1 bg-slate-200 rounded text-sm"
-                    >
-                      {expandedBookingId === b._id ? "Collapse" : "See Status"}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() =>
+                      setExpandedBookingId(
+                        expandedBookingId === b._id ? null : b._id
+                      )
+                    }
+                    className="px-2 py-1 bg-slate-200 rounded text-sm w-full sm:w-auto"
+                  >
+                    {expandedBookingId === b._id ? "Collapse" : "See Status"}
+                  </button>
                 </div>
 
-                {/* expanded session manager */}
-                {/* expanded session manager */}
+                {/* EXPANDED SESSIONS */}
                 {expandedBookingId === b._id && (
                   <div className="mt-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {(b.sessions || []).map((s, idx) => {
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {b.sessions?.map((s, idx) => {
                         const dateStr = new Date(
                           s.sessionDate
                         ).toLocaleString();
-
                         return (
                           <div
                             key={idx}
@@ -363,21 +350,23 @@ export default function PatientDashboard() {
                             }`}
                           >
                             <div>
-                              <div className="text-sm font-medium">
+                              <div className="text-sm font-medium break-words">
                                 {dateStr}
                               </div>
-                              <div className="text-xs text-slate-600 mt-1 font-medium">
+
+                              <div className="text-xs text-slate-600 mt-1">
                                 Status: {s.status}
                               </div>
+
                               {s.feedbackText && (
-                                <div className="text-xs text-slate-700 mt-2 break-words">
+                                <p className="text-xs mt-2 break-words">
                                   <strong>Your feedback:</strong>{" "}
                                   {s.feedbackText}
-                                </div>
+                                </p>
                               )}
                             </div>
 
-                            {/* Feedback button only if completed and no feedback yet */}
+                            {/* FEEDBACK BUTTON */}
                             {s.status === "completed" && (
                               <button
                                 onClick={() => {
@@ -396,7 +385,7 @@ export default function PatientDashboard() {
                                     });
                                   }
                                 }}
-                                disabled={s.feedbackText} // disable if feedback exists
+                                disabled={!!s.feedbackText}
                                 className={`mt-2 px-3 py-1 rounded text-sm ${
                                   s.feedbackText
                                     ? "bg-gray-300 text-gray-700 cursor-not-allowed"
@@ -419,9 +408,11 @@ export default function PatientDashboard() {
           })
         )}
       </div>
+
+      {/* FEEDBACK MODAL */}
       {feedbackModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[400px]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-sm sm:max-w-md">
             <h3 className="text-lg font-semibold mb-4">Submit Feedback</h3>
 
             <div className="space-y-3 text-sm">
@@ -517,8 +508,9 @@ export default function PatientDashboard() {
               >
                 Cancel
               </button>
+
               <button
-                onClick={() => handleSubmitModalFeedback()}
+                onClick={handleSubmitModalFeedback}
                 className="px-3 py-1 bg-teal-600 text-white rounded"
               >
                 Submit
@@ -531,16 +523,9 @@ export default function PatientDashboard() {
   );
 }
 
-/* helpers */
-function isoDate(d) {
-  const dd = new Date(d);
-  return dd.toISOString().slice(0, 10);
-}
-function startOfDay(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
+/* HELPERS */
 const sleepToNumber = (sleep) => {
-  switch ((sleep || "").toLowerCase()) {
+  switch (sleep?.toLowerCase()) {
     case "poor":
       return 2;
     case "average":
@@ -550,9 +535,4 @@ const sleepToNumber = (sleep) => {
     default:
       return 5;
   }
-};
-const getScoreColor = (score) => {
-  if (score >= 7) return "#22c55e"; // green = good improvement
-  if (score >= 4) return "#f59e0b"; // yellow/amber = medium
-  return "#ef4444"; // red = low
 };

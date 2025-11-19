@@ -31,6 +31,7 @@ const LoginPage = () => {
         navigate("/doctor-dashboard");
       }
 
+      // Reload to ensure app state updates (you used this previously)
       window.location.reload();
     } catch (error) {
       toast.error(error.response?.data || "Login failed!");
@@ -39,29 +40,44 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-[80vh]">
-      <div className="bg-white shadow-xl rounded-xl p-8 w-[60vh] shadow-black">
+    <div className="min-h-screen  items-center justify-center px-4 py-8">
+      <div
+        className="bg-white shadow-xl rounded-xl p-6 sm:p-8 w-full max-w-md md:w-[60vh] md:max-w-none"
+        role="region"
+        aria-labelledby="login-heading"
+      >
+        <h2
+          id="login-heading"
+          className="text-xl sm:text-2xl font-bold text-teal-700 text-center mb-5"
+        >
+          {role === "patient" ? "Patient Login" : "Doctor Login"}
+        </h2>
         {/* Role Switch Tabs */}
-        <div className="flex justify-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-center mb-6">
           <button
             type="button"
             onClick={() => setRole("patient")}
-            className={`w-1/2 py-2 font-semibold rounded-l-lg transition ${
-              role === "patient"
-                ? "bg-teal-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
+            aria-pressed={role === "patient"}
+            className={`w-full sm:w-1/2 py-2 font-medium transition text-sm sm:font-semibold sm:text-lg
+              ${
+                role === "patient"
+                  ? "bg-teal-600 text-white rounded-t-lg sm:rounded-l-lg sm:rounded-tr-none"
+                  : "bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-b-lg sm:rounded-r-none sm:rounded-l-none"
+              }`}
           >
             Login as Patient
           </button>
+
           <button
             type="button"
             onClick={() => setRole("doctor")}
-            className={`w-1/2 py-2 font-semibold rounded-r-lg transition ${
-              role === "doctor"
-                ? "bg-teal-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
+            aria-pressed={role === "doctor"}
+            className={`w-full sm:w-1/2 py-2 font-medium transition mt-2 text-sm sm:mt-0 sm:text-lg
+              ${
+                role === "doctor"
+                  ? "bg-teal-600 text-white rounded-b-lg sm:rounded-r-lg sm:rounded-t-none"
+                  : "bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-t-lg sm:rounded-l-none sm:rounded-r-none"
+              }`}
           >
             Login as Doctor
           </button>
@@ -69,16 +85,16 @@ const LoginPage = () => {
 
         {/* Dynamic Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <h2 className="text-xl font-bold text-teal-700 text-center mb-4">
-            {role === "patient" ? "Patient Login" : "Doctor Login"}
-          </h2>
-
           {/* Email */}
           <div>
-            <label className="block text-slate-700 font-medium mb-1">
+            <label
+              htmlFor="email"
+              className="block text-slate-700 font-medium mb-1"
+            >
               Email Address
             </label>
             <input
+              id="email"
               type="email"
               {...register("email", {
                 required: "Email is required",
@@ -87,11 +103,12 @@ const LoginPage = () => {
                   message: "Enter a valid email address",
                 },
               })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
               placeholder="Enter your email"
+              aria-invalid={errors.email ? "true" : "false"}
             />
             {errors.email && (
-              <p className="text-red-600 text-sm mt-1">
+              <p role="alert" className="text-red-600 text-sm mt-1">
                 {errors.email.message}
               </p>
             )}
@@ -99,20 +116,25 @@ const LoginPage = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-slate-700 font-medium mb-1">
+            <label
+              htmlFor="password"
+              className="block text-slate-700 font-medium mb-1"
+            >
               Password
             </label>
             <input
+              id="password"
               type="password"
               {...register("password", {
                 required: "Password is required",
                 minLength: { value: 6, message: "Minimum 6 characters" },
               })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none text-sm sm:text-base"
               placeholder="Enter your password"
+              aria-invalid={errors.password ? "true" : "false"}
             />
             {errors.password && (
-              <p className="text-red-600 text-sm mt-1">
+              <p role="alert" className="text-red-600 text-sm mt-1">
                 {errors.password.message}
               </p>
             )}
@@ -121,7 +143,7 @@ const LoginPage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+            className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
           >
             Login
           </button>

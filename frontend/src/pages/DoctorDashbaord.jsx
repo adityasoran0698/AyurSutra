@@ -13,13 +13,15 @@ import {
   Tooltip,
 } from "recharts";
 
-const COLORS = ["#22c55e", "#f59e0b", "#ef4444"]; // green, yellow, red
+const COLORS = ["#22c55e", "#f59e0b", "#ef4444"];
 
 function KPI({ title, value, hint }) {
   return (
-    <div className="p-4 rounded-xl bg-white shadow-sm border">
+    <div className="p-4 rounded-xl bg-white shadow-sm border w-full">
       <div className="text-sm text-slate-500">{title}</div>
-      <div className="text-2xl font-bold text-slate-800 mt-1">{value}</div>
+      <div className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">
+        {value}
+      </div>
       {hint && <div className="text-xs text-slate-400 mt-1">{hint}</div>}
     </div>
   );
@@ -45,7 +47,7 @@ export default function DoctorDashboard() {
       );
       const data = res.data.patients || res.data.bookings || [];
       setBookings(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch doctor bookings");
       setBookings([]);
     } finally {
@@ -53,7 +55,6 @@ export default function DoctorDashboard() {
     }
   }
 
-  // Group bookings by patient
   const groupedPatients = useMemo(() => {
     const map = {};
     bookings.forEach((b) => {
@@ -70,7 +71,6 @@ export default function DoctorDashboard() {
     return Object.values(map);
   }, [bookings]);
 
-  // Flatten sessions for charts & stats
   const allSessions = useMemo(() => {
     if (!Array.isArray(bookings)) return [];
     return bookings.flatMap((b) =>
@@ -95,12 +95,13 @@ export default function DoctorDashboard() {
     const days = 14;
     const now = new Date();
     const map = {};
+
     for (let i = 0; i < days; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
       const key = `${String(d.getDate()).padStart(2, "0")}/${String(
         d.getMonth() + 1
-      ).padStart(2, "0")}/${d.getFullYear()}`; // dd/mm/yyyy
+      ).padStart(2, "0")}/${d.getFullYear()}`;
       map[key] = 0;
     }
 
@@ -110,7 +111,7 @@ export default function DoctorDashboard() {
         const key = `${String(sessionDate.getDate()).padStart(2, "0")}/${String(
           sessionDate.getMonth() + 1
         ).padStart(2, "0")}/${sessionDate.getFullYear()}`;
-        if (key in map) map[key] += 1;
+        if (map[key] !== undefined) map[key] += 1;
       }
     });
 
@@ -126,9 +127,11 @@ export default function DoctorDashboard() {
       const updatedSessions = booking.sessions.map((s, idx) =>
         idx === sessionIndex ? { ...s, status: newStatus } : s
       );
+
       const completedSessions = updatedSessions.filter(
         (s) => s.status === "completed"
       ).length;
+
       const newProgress = {
         completedSessions,
         totalSessions: updatedSessions.length,
@@ -136,25 +139,22 @@ export default function DoctorDashboard() {
 
       const res = await axios.patch(
         `https://ayursutra-2-tl11.onrender.com/bookings/update/${bookingId}`,
-
-        {
-          sessions: updatedSessions,
-          progress: newProgress,
-        },
+        { sessions: updatedSessions, progress: newProgress },
         { withCredentials: true }
       );
 
       const updated = res.data.booking || res.data;
+
       setBookings((prev) =>
         prev.map((b) => (b._id === bookingId ? updated : b))
       );
-    } catch (err) {
-      console.error("Failed to update session", err);
-      alert("Failed to update session.");
+    } catch {
+      toast.error("Failed to update session.");
     } finally {
       setProcessing(false);
     }
   }
+
   const uniquePatientCount = useMemo(() => {
     const ids = new Set();
     bookings.forEach((b) => {
@@ -166,20 +166,22 @@ export default function DoctorDashboard() {
   if (loading) return <div className="p-6">Loading doctor dashboard...</div>;
 
   return (
-    <div className="p-6 space-y-6 w-[80vw]">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
+    <div className="p-4 sm:p-6 space-y-6 w-full lg:w-[80vw] mx-auto">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold">Doctor Dashboard</h1>
+
         <button
           onClick={fetchDoctorBookings}
           disabled={processing}
-          className="px-3 py-1 bg-slate-200 rounded"
+          className="px-3 py-1 bg-slate-200 rounded w-full sm:w-auto"
         >
           Refresh
         </button>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI title="Patients" value={uniquePatientCount} />
         <KPI
           title="Total Sessions"
@@ -197,31 +199,37 @@ export default function DoctorDashboard() {
         <KPI title="Missed Sessions" value={missedCount} />
       </div>
 
-      {/* Charts */}
-      <div className="w-[100%] bg-white p-4 rounded-xl shadow">
-        <div className="w-full">
-          <h3 className="font-semibold mb-2">Upcoming Sessions</h3>
-          <div style={{ height: 240 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sessionsByDay}>
-                <XAxis dataKey="date" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="sessions"
-                  stroke="#22c55e"
-                  fill="#bbf7d0"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      {/* CHART */}
+      <div className="w-full bg-white p-4 rounded-xl shadow overflow-x-auto">
+        <h3 className="font-semibold mb-2">Upcoming Sessions</h3>
+
+        <div style={{ height: 240, minWidth: "300px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={sessionsByDay}>
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+              <Tooltip
+                wrapperStyle={{
+                  fontSize: "12px",
+                  maxWidth: "200px",
+                  whiteSpace: "normal",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="sessions"
+                stroke="#22c55e"
+                fill="#bbf7d0"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Patients & Bookings */}
+      {/* PATIENTS & BOOKINGS */}
       <div className="bg-white p-4 rounded-xl shadow">
         <h3 className="font-semibold mb-3">Patients & Bookings</h3>
+
         {groupedPatients.length === 0 ? (
           <div className="text-sm text-slate-500">No patients assigned.</div>
         ) : (
@@ -238,9 +246,4 @@ export default function DoctorDashboard() {
       </div>
     </div>
   );
-}
-
-function isoDate(d) {
-  const dd = new Date(d);
-  return dd.toISOString().slice(0, 10);
 }

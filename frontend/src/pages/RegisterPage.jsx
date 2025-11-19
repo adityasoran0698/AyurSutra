@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const RegisterPage = () => {
   const {
@@ -19,25 +20,25 @@ const RegisterPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const onSubmit = async (data) => {
-    console.log(data)
     try {
-      // ✅ Use centralized API
-      const response = await api.post("/user/register", data);
+      const response = await axios.post(
+        "https://ayursutra-2-tl11.onrender.com/user/register",
+        data
+      );
+
       toast.success(response.data);
-      console.log(response)
-      {
-        data.role === "doctor"
-          ? navigate("/doctor-dashboard")
-          : navigate("/patient-dashbaord");
-      }
+
+      data.role === "doctor"
+        ? navigate("/doctor-dashboard")
+        : navigate("/patient-dashboard");
     } catch (error) {
-      toast.error(error?.message || "Registration failed");
+      toast.error(error?.response?.data || "Registration failed");
     }
   };
 
   return (
-    <div className="min-h-screen mt-5">
-      <div className="shadow-xl rounded-xl p-8 w-[70vh] bg-white shadow-black">
+    <div className="min-h-screen flex justify-center items-start pt-6 px-4 pb-10 bg-gray-50">
+      <div className="shadow-xl rounded-xl p-6 sm:p-8 w-full max-w-md bg-white">
         <h2 className="text-2xl font-bold text-teal-700 text-center mb-6">
           Create Your Account
         </h2>
@@ -122,16 +123,17 @@ const RegisterPage = () => {
                   minLength: { value: 6, message: "Minimum 6 characters" },
                 })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
-                placeholder="Enter your password"
+                placeholder="Enter password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700 text-sm cursor-pointer font-medium"
+                className="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700 text-sm font-medium"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+
             {errors.password && (
               <p className="text-red-600 text-sm mt-1">
                 {errors.password.message}
@@ -153,16 +155,17 @@ const RegisterPage = () => {
                     value === password || "Passwords do not match",
                 })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
-                placeholder="Confirm your password"
+                placeholder="Confirm password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700 text-sm cursor-pointer font-medium"
+                className="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700 text-sm font-medium"
               >
                 {showConfirm ? "Hide" : "Show"}
               </button>
             </div>
+
             {errors.confirmPassword && (
               <p className="text-red-600 text-sm mt-1">
                 {errors.confirmPassword.message}
@@ -170,7 +173,7 @@ const RegisterPage = () => {
             )}
           </div>
 
-          {/* Role Selection */}
+          {/* Role */}
           <div>
             <label className="block text-slate-700 font-medium mb-1">
               Register As
@@ -183,18 +186,20 @@ const RegisterPage = () => {
               <option value="patient">Patient</option>
               <option value="doctor">Doctor</option>
             </select>
+
             {errors.role && (
               <p className="text-red-600 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
 
-          {/* Doctor Fields (conditional) */}
+          {/* DOCTOR FIELDS */}
           {selectedRole === "doctor" && (
-            <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+            <div className="space-y-4 bg-gray-50 p-4 rounded-lg mt-2">
               <h3 className="text-lg font-semibold text-teal-600">
                 Doctor Details
               </h3>
 
+              {/* Specialization */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Specialization
@@ -214,6 +219,7 @@ const RegisterPage = () => {
                 )}
               </div>
 
+              {/* Qualification */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Qualification
@@ -233,6 +239,7 @@ const RegisterPage = () => {
                 )}
               </div>
 
+              {/* Experience */}
               <div>
                 <label className="block text-slate-700 font-medium mb-1">
                   Experience (Years)
@@ -255,7 +262,7 @@ const RegisterPage = () => {
             </div>
           )}
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
@@ -263,6 +270,7 @@ const RegisterPage = () => {
             Register
           </button>
 
+          {/* Redirect */}
           <p className="text-sm text-slate-600 text-center">
             Already have an Account?{" "}
             <a href="/login" className="text-teal-600 hover:underline">
