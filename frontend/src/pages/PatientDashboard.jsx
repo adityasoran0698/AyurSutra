@@ -69,13 +69,9 @@ export default function PatientDashboard() {
 
   async function fetchBookings() {
     try {
-      setLoading(true);
-      const res = await axios.get(
-        "https://ayursutra-2-tl11.onrender.com/bookings",
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.get("http://localhost:8000/bookings", {
+        withCredentials: true,
+      });
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
     } catch {
@@ -109,7 +105,7 @@ export default function PatientDashboard() {
       };
 
       await axios.post(
-        `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
+        `http://localhost:8000/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
@@ -331,7 +327,7 @@ export default function PatientDashboard() {
                         expandedBookingId === b._id ? null : b._id
                       )
                     }
-                    className=" px-3 py-1  bg-slate-200 rounded text-sm w-full sm:w-auto whitespace-nowrap"
+                    className=" px-3 py-1  bg-slate-200 rounded text-sm w-full sm:w-auto"
                   >
                     {expandedBookingId === b._id ? "Collapse" : "See Status"}
                   </button>

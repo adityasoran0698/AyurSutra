@@ -14,7 +14,7 @@ const AddTherapyPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/therapies/add-therapy",
+        "http://localhost:8000/therapies/add-therapy",
 
         data,
         {

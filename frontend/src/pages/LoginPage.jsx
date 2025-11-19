@@ -21,7 +21,7 @@ const LoginPage = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/login",
+        "http://localhost:8000/user/login",
         { ...data, role },
         { withCredentials: true }
       );

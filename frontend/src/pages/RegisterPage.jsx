@@ -23,7 +23,7 @@ const RegisterPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/register",
+        "http://localhost:8000/user/register",
         data
       );
       setLoading(true);

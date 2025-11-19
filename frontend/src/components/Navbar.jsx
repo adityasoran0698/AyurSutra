@@ -1,289 +1,209 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
-import { IoNotificationsSharp } from "react-icons/io5";
-import { HiMenu } from "react-icons/hi";
+import { X } from "lucide-react";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import ImprovementChart from "./improvmentChart";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const Navbar = () => {
-  const [user, setUser] = useState(null);
-  const [open, setOpen] = useState(false); // mobile menu
-  const navigate = useNavigate();
+const PatientCard = ({
+  patient,
+  bookings,
+  handleUpdateSession,
+  processing,
+}) => {
+  const [openDialog, setOpenDialog] = useState(false);
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        setUser(null);
-      }
+  const handleDeleteBooking = async (bookingId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/bookings/delete/${bookingId}`,
+        { withCredentials: true }
+      );
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error deleting booking");
     }
-
-    fetchUser();
-  }, []);
+  };
 
   return (
     <>
-      {/* TOP NAV */}
-      <div className="flex justify-between items-center py-3 px-5 shadow bg-white sticky top-0 z-50">
-        {/* Logo */}
-        <div className="flex items-center font-bold text-2xl">
-          <img
-            src="https://img.freepik.com/premium-vector/modern-medical-health-care-center-ayurvedic-logo-design-vector-illustration_898869-86.jpg"
-            alt=""
-            className="h-14 w-14 mr-3"
-          />
-          <div className="text-emerald-600">
-            <span className="text-lg sm:text-2xl">AyurSutra</span>
-          </div>
-        </div>
-
-        {/* DESKTOP MENU */}
-        <ul className="gap-x-5 text-lg font-medium text-teal-700 hidden sm:flex">
-          <li>
-            <Link
-              to="/"
-              className="relative text-emerald-700 cursor-pointer
-                after:content-[''] after:absolute after:left-0 after:bottom-0 py-1
-                after:h-[2px] after:w-0 after:bg-teal-600 
-                after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-            >
-              Home
-            </Link>
-          </li>
-
-          <li>
-            {user ? (
-              user.role === "patient" ? (
-                <Link
-                  to="/therapies"
-                  className="relative text-emerald-700 cursor-pointer
-                    after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
-                    after:h-[2px] after:w-0 after:bg-teal-600 
-                    after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-                >
-                  Book Therapies
-                </Link>
-              ) : (
-                <Link
-                  to="/add-therapy"
-                  className="relative text-emerald-700 cursor-pointer
-                    after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
-                    after:h-[2px] after:w-0 after:bg-teal-600 
-                    after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-                >
-                  Add Therapies
-                </Link>
-              )
-            ) : (
-              <a
-                href="#about"
-                className="relative text-emerald-700 cursor-pointer
-                    after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
-                    after:h-[2px] after:w-0 after:bg-teal-600 
-                    after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-              >
-                About
-              </a>
-            )}
-          </li>
-
-          <li>
-            {user ? (
-              <Link
-                to={
-                  user.role === "patient"
-                    ? "/patient-dashboard"
-                    : "/doctor-dashboard"
-                }
-                className="relative text-emerald-700 cursor-pointer
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
-                  after:h-[2px] after:w-0 after:bg-teal-600 
-                  after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <Link
-                to="/therapies"
-                className="relative text-emerald-700 cursor-pointer
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 py-1
-                  after:h-[2px] after:w-0 after:bg-teal-600 
-                  after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-              >
-                Therapies
-              </Link>
-            )}
-          </li>
-
-          <li>
-            <Link
-              to="/blogs"
-              className="relative text-emerald-700 cursor-pointer
-                after:content-[''] after:absolute after:left-0 after:bottom-0 py-1 
-                after:h-[2px] after:w-0 after:bg-teal-600 
-                after:transition-all after:duration-300 hover:after:w-full hover:text-emerald-900"
-            >
-              Blogs
-            </Link>
-          </li>
-        </ul>
-
-        {/* RIGHT SIDE: Login / Username */}
-        <div className="hidden sm:flex gap-4 items-center">
-          {user ? (
-            user.role === "patient" ? (
-              <div className="flex items-center gap-3">
-                <div className="text-emerald-700 font-bold cursor-pointer hover:text-emerald-900">
-                  Hi, {user.fullname}
-                </div>
-                <IoNotificationsSharp className="text-xl text-emerald-600 cursor-pointer" />
-              </div>
-            ) : (
-              <Link
-                to="/doctor-dashboard"
-                className="text-emerald-700 font-bold cursor-pointer hover:text-emerald-900"
-              >
-                Hi, Dr. {user.fullname}
-              </Link>
-            )
-          ) : (
-            <Link
-              to="/login"
-              className="border px-3.5 py-1.5 text-white font-semibold rounded bg-green-900"
-            >
-              Login
-            </Link>
-          )}
-
-          {user ? (
-            <button
-              onClick={() => {
-                Cookies.remove("token");
-                setUser(null);
-                navigate("/");
-              }}
-              className="border px-3 py-1 cursor-pointer bg-rose-800 text-white font-semibold rounded"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link
-              to="/register"
-              className="border px-3.5 py-1.5 font-semibold text-green-700 rounded"
-            >
-              Register
-            </Link>
-          )}
-        </div>
-
-        {/* MOBILE MENU BUTTON */}
-        <button
-          className="sm:hidden text-3xl text-emerald-700"
-          onClick={() => setOpen(!open)}
-        >
-          <HiMenu />
-        </button>
-      </div>
-
-      {/* MOBILE DROPDOWN MENU */}
+      {/* CARD HEADER */}
       <div
-        className={`sm:hidden bg-white shadow px-5 py-3 flex flex-col gap-4 transition-all duration-300 overflow-hidden ${
-          open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-        }`}
+        onClick={() => setOpenDialog(true)}
+        className="border rounded-xl mb-4 bg-white shadow p-4 cursor-pointer hover:bg-slate-50"
       >
-        {/* USERNAME SHOWN ON TOP */}
-        {user && (
-          <div className="text-emerald-700 font-bold border-b pb-2">
-            {user.role === "doctor"
-              ? `Hello, Dr. ${user.fullname}`
-              : `Hello, ${user.fullname}`}
-          </div>
-        )}
-
-        <Link to="/" onClick={() => setOpen(false)}>
-          Home
-        </Link>
-
-        {user ? (
-          user.role === "patient" ? (
-            <Link to="/therapies" onClick={() => setOpen(false)}>
-              Book Therapies
-            </Link>
-          ) : (
-            <Link to="/add-therapy" onClick={() => setOpen(false)}>
-              Add Therapies
-            </Link>
-          )
-        ) : (
-          <a href="#about" onClick={() => setOpen(false)}>
-            About
-          </a>
-        )}
-
-        <Link
-          to={
-            user
-              ? user.role === "patient"
-                ? "/patient-dashboard"
-                : "/doctor-dashboard"
-              : "/therapies"
-          }
-          onClick={() => setOpen(false)}
-        >
-          {user ? "Dashboard" : "Therapies"}
-        </Link>
-
-        <Link to="/blogs" onClick={() => setOpen(false)}>
-          Blogs
-        </Link>
-
-        {!user ? (
-          <>
-            <Link
-              to="/login"
-              onClick={() => setOpen(false)}
-              className="font-semibold text-green-800"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              onClick={() => setOpen(false)}
-              className="font-semibold text-green-700"
-            >
-              Register
-            </Link>
-          </>
-        ) : (
-          <button
-            onClick={() => {
-              Cookies.remove("token");
-              setUser(null);
-              setOpen(false);
-              navigate("/");
-            }}
-            className="text-red-700 font-semibold text-left"
-          >
-            Logout
-          </button>
-        )}
+        <div className="text-lg font-semibold">{patient.fullname}</div>
+        <div className="text-sm text-slate-500">
+          {bookings.length} booking{bookings.length > 1 ? "s" : ""}
+        </div>
       </div>
+
+      {/* FULL SCREEN DIALOG */}
+      {openDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white w-full h-full md:w-[80%] md:h-[90%] md:rounded-xl shadow-xl overflow-y-scroll">
+            {/* DIALOG HEADER */}
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-xl font-bold">{patient.fullname}</h2>
+
+              <button
+                onClick={() => setOpenDialog(false)}
+                className="p-2 bg-slate-200 rounded-full"
+              >
+                <X className="text-slate-700" />
+              </button>
+            </div>
+
+            {/* DIALOG CONTENT */}
+            <div className="p-4 space-y-6">
+              {bookings.map((b) => {
+                const sessions = b.sessions || [];
+                const completed = sessions.filter(
+                  (s) => s.status === "completed"
+                ).length;
+                const scheduled = sessions.filter(
+                  (s) => s.status === "scheduled"
+                ).length;
+                const missed = sessions.filter(
+                  (s) => s.status === "missed"
+                ).length;
+
+                const pieData = [
+                  { name: "Completed", value: completed },
+                  { name: "Scheduled", value: scheduled },
+                  { name: "Missed", value: missed },
+                ];
+
+                return (
+                  <div
+                    key={b._id}
+                    className="border rounded-xl p-4 bg-slate-50 shadow-sm"
+                  >
+                    {/* BOOKING HEADER */}
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+                      <div className="text-md font-semibold">
+                        {b.therapyId?.name}
+                      </div>
+
+                      <div className="text-sm">
+                        Progress: {b.progress?.completedSessions || 0}/
+                        {b.progress?.totalSessions || 0}
+                      </div>
+
+                      <button
+                        onClick={() => handleDeleteBooking(b._id)}
+                        className="text-sm bg-amber-700 text-white px-3 py-1 rounded"
+                      >
+                        Delete Booking
+                      </button>
+                    </div>
+
+                    {/* CHART SECTION */}
+                    <div className="mt-3 flex flex-col md:flex-row gap-6 w-full">
+                      {/* PIE CHART */}
+                      <div className="md:w-1/3 w-full bg-white border rounded-xl shadow-sm p-4 h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={pieData}
+                              dataKey="value"
+                              nameKey="name"
+                              outerRadius={70}
+                              label
+                            >
+                              {pieData.map((entry, idx) => (
+                                <Cell
+                                  key={idx}
+                                  fill={["#22c55e", "#f59e0b", "#ef4444"][idx]}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* IMPROVEMENT CHART */}
+                      <div className="md:w-2/3 w-full">
+                        <ImprovementChart
+                          sessions={sessions}
+                          title="Patient Progress"
+                        />
+                      </div>
+                    </div>
+
+                    {/* SESSION CARDS */}
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                      {sessions.map((s, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 rounded border text-sm ${
+                            s.status === "completed"
+                              ? "bg-green-50 border-green-300"
+                              : s.status === "missed"
+                              ? "bg-red-50 border-red-300"
+                              : "bg-white"
+                          }`}
+                        >
+                          <div>
+                            <div className="font-medium">
+                              {new Date(s.sessionDate).toLocaleDateString()}
+                            </div>
+                            <div className="text-xs text-slate-600">
+                              {s.status}
+                            </div>
+                          </div>
+
+                          {/* BUTTONS */}
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            <button
+                              onClick={() =>
+                                handleUpdateSession(
+                                  b._id,
+                                  i,
+                                  s.status === "completed"
+                                    ? "scheduled"
+                                    : "completed"
+                                )
+                              }
+                              className={`text-xs px-2 py-1 rounded ${
+                                s.status === "completed"
+                                  ? "bg-yellow-500 text-white"
+                                  : "bg-green-600 text-white"
+                              }`}
+                            >
+                              {s.status === "completed" ? "Undo" : "Complete"}
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                handleUpdateSession(
+                                  b._id,
+                                  i,
+                                  s.status === "missed" ? "scheduled" : "missed"
+                                )
+                              }
+                              className={`text-xs px-2 py-1 rounded ${
+                                s.status === "missed"
+                                  ? "bg-yellow-500 text-white"
+                                  : "bg-red-500 text-white"
+                              }`}
+                            >
+                              {s.status === "missed" ? "Undo" : "Missed"}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
 
-export default Navbar;
+export default PatientCard;

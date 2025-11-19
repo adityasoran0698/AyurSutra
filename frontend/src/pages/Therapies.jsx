@@ -16,9 +16,7 @@ const Therapies = () => {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const res = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/therapy"
-        );
+        const res = await axios.get("http://localhost:8000/therapy");
         setTherapies(res.data.therapies);
         setFilteredTherapies(res.data.therapies);
       } catch (err) {
@@ -28,12 +26,9 @@ const Therapies = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get("http://localhost:8000/user/me", {
+          withCredentials: true,
+        });
         setUser(res.data.user);
       } catch {
         setUser(null);
