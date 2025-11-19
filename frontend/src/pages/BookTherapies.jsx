@@ -20,7 +20,9 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchTherapy() {
       try {
-        const res = await axios.get(`http://localhost:8000/therapy/${id}`);
+        const res = await axios.get(
+          `https://ayursutra-2-tl11.onrender.com/therapy/${id}`
+        );
         setTherapy(res.data.therapy);
       } catch (err) {
         toast.error("Failed to load therapy details");
@@ -35,9 +37,12 @@ const BookTherapies = () => {
   useEffect(() => {
     async function fetchDoctors() {
       try {
-        const res = await axios.get("http://localhost:8000/user/doctors", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://ayursutra-2-tl11.onrender.com/user/doctors",
+          {
+            withCredentials: true,
+          }
+        );
         setDoctors(res.data.doctors || []);
       } catch (err) {
         toast.error("Failed to load doctors");
@@ -59,7 +64,7 @@ const BookTherapies = () => {
     setIsBooking(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/bookings",
+        "https://ayursutra-2-tl11.onrender.com/bookings",
         {
           therapyId: therapy._id,
           doctorId: selectedDoctor,

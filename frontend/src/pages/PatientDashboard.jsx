@@ -69,9 +69,12 @@ export default function PatientDashboard() {
 
   async function fetchBookings() {
     try {
-      const res = await axios.get("http://localhost:8000/bookings", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://ayursutra-2-tl11.onrender.com/bookings",
+        {
+          withCredentials: true,
+        }
+      );
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
     } catch {
@@ -105,7 +108,7 @@ export default function PatientDashboard() {
       };
 
       await axios.post(
-        `http://localhost:8000/bookings/${bookingId}/${sessionIndex}`,
+        `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true }
       );
