@@ -271,7 +271,6 @@ export default function PatientDashboard() {
         </div>
       </div>
 
-      {/* BOOKINGS */}
       <div className="bg-white p-4 rounded-xl shadow">
         <h3 className="font-semibold mb-3">Your Bookings & Progress</h3>
 
@@ -317,7 +316,7 @@ export default function PatientDashboard() {
                   </div>
                 </div>
 
-                {/* NOTES + BUTTON */}
+                
                 <div className="mt-3 flex flex-col sm:flex-row justify-between gap-2">
                   <p className="text-sm text-slate-600 break-words w-full">
                     {b.notes || b.patientNotes || ""}
@@ -370,8 +369,6 @@ export default function PatientDashboard() {
                                 </p>
                               )}
                             </div>
-
-                            {/* FEEDBACK BUTTON */}
                             {s.status === "completed" && (
                               <button
                                 onClick={() => {
