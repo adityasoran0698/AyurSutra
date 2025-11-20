@@ -42,7 +42,14 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+            <Route
+              path="/doctor-dashboard"
+              element={
+                <ProtectedRoute>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
