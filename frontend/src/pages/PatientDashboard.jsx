@@ -335,7 +335,7 @@ export default function PatientDashboard() {
                   </button>
                 </div>
 
-                {/* EXPANDED SESSIONS */}
+               
                 {expandedBookingId === b._id && (
                   <div className="mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
