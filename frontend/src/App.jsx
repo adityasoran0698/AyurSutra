@@ -11,7 +11,6 @@ import AddTherapyPage from "./pages/AddTherapy";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashbaord";
 import ProtectedRoute from "./../ProtectedRoute";
-import Authorization from "./../Authorization";
 
 const App = () => {
   return (
