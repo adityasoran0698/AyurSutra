@@ -10,7 +10,7 @@ import BookTherapies from "./pages/BookTherapies";
 import AddTherapyPage from "./pages/AddTherapy";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashbaord";
-import ProtectedRoute from "./../ProtectedRoute";
+import ProtectedRoute from "./ProtectedRoute";
 
 const App = () => {
   return (
