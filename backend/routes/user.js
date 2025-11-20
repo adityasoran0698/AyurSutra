@@ -88,4 +88,17 @@ router.get("/me", async (req, res) => {
   const user = validateToken(token);
   return res.json({ user });
 });
+
+router.post("/logout", async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    return res.json({ message: "Logged Out Successfully!" });
+  } catch (error) {
+    return res.json({ message: "Error in logout" });
+  }
+});
 module.exports = router;

@@ -4,6 +4,8 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
+import { axios } from "axios";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -13,10 +15,13 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch("https://ayursutra-2-tl11.onrender.com/user/me", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "https://ayursutra-2-tl11.onrender.com/user/me",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         if (res.ok) {
           const data = await res.json();
@@ -31,6 +36,19 @@ const Navbar = () => {
 
     fetchUser();
   }, []);
+  const handleLogout = () => {
+    try {
+      const response = axios.get(
+        "https://ayursutra-2-tl11.onrender.com/user/logout",
+        { withCredentials: true }
+      );
+      setUser(null);
+      navigate("/");
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error(response.data.message);
+    }
+  };
 
   return (
     <>
@@ -168,11 +186,7 @@ const Navbar = () => {
 
           {user ? (
             <button
-              onClick={() => {
-                Cookies.remove("token");
-                setUser(null);
-                navigate("/");
-              }}
+              onClick={handleLogout}
               className="border px-3 py-1 cursor-pointer bg-rose-800 text-white font-semibold rounded"
             >
               Logout
