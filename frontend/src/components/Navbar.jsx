@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
-import { axios } from "axios";
+import axios  from "axios";
 import { toast } from "react-toastify";
 
 const Navbar = () => {
@@ -38,7 +38,7 @@ const Navbar = () => {
   }, []);
   const handleLogout = () => {
     try {
-      const response = axios.get(
+      const response = axios.post(
         "https://ayursutra-2-tl11.onrender.com/user/logout",
         { withCredentials: true }
       );
