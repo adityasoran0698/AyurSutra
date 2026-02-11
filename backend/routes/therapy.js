@@ -1,6 +1,5 @@
 const express = require("express");
 const Therapy = require("../models/Therapy.js");
-const User = require("../models/user.js");
 const { validateToken } = require("../services/auth.js");
 const router = express.Router();
 

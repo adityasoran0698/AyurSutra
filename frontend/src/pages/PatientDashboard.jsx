@@ -3,21 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Sentiment from "sentiment";
 import axios from "axios";
 
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
-  Legend,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
 import { toast } from "react-toastify";
 import ImprovementChart from "./../components/improvmentChart";
 import { SyncLoader } from "react-spinners";
@@ -54,6 +40,8 @@ export default function PatientDashboard() {
   const [expandedBookingId, setExpandedBookingId] = useState(null);
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [processing, setProcessing] = useState(false);
+
   const [modalFeedback, setModalFeedback] = useState({
     pain: 0,
     stress: 0,
@@ -72,7 +60,7 @@ export default function PatientDashboard() {
         "https://ayursutra-2-tl11.onrender.com/bookings",
         {
           withCredentials: true,
-        }
+        },
       );
       const data = Array.isArray(res.data.bookings) ? res.data.bookings : [];
       setBookings(data);
@@ -109,7 +97,7 @@ export default function PatientDashboard() {
       await axios.post(
         `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
         payload,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       toast.success("Feedback submitted successfully!");
@@ -124,11 +112,11 @@ export default function PatientDashboard() {
             ? {
                 ...b,
                 sessions: b.sessions.map((s, i) =>
-                  i === sessionIndex ? { ...s, ...payload } : s
+                  i === sessionIndex ? { ...s, ...payload } : s,
                 ),
               }
-            : b
-        )
+            : b,
+        ),
       );
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit feedback");
@@ -145,7 +133,7 @@ export default function PatientDashboard() {
         ...s,
         bookingId: b._id,
         therapyName: b.therapyId?.name,
-      }))
+      })),
     );
   }, [bookings]);
 
@@ -170,7 +158,7 @@ export default function PatientDashboard() {
       Math.round(
         ((painScore + stressScore + energyScore + sleepScore + sentimentScore) /
           5) *
-          10
+          10,
       ) / 10
     );
   };
@@ -181,18 +169,18 @@ export default function PatientDashboard() {
         session: idx + 1,
         Score: calculateSessionScore(s),
         feedbackText: s.feedbackText || "No feedback",
-      }))
+      })),
     );
   }, [bookings]);
 
   const completedSessionsCount = allSessions.filter(
-    (s) => s.status === "completed"
+    (s) => s.status === "completed",
   ).length;
   const scheduledSessionsCount = allSessions.filter(
-    (s) => s.status === "scheduled"
+    (s) => s.status === "scheduled",
   ).length;
   const missedSessionsCount = allSessions.filter(
-    (s) => s.status === "missed"
+    (s) => s.status === "missed",
   ).length;
 
   const pieData = [
@@ -296,7 +284,7 @@ export default function PatientDashboard() {
                       {new Date(b.createdAt).toLocaleDateString()} • Starts:{" "}
                       {b.sessions?.length > 0
                         ? new Date(
-                            b.sessions[0].sessionDate
+                            b.sessions[0].sessionDate,
                           ).toLocaleDateString()
                         : "TBD"}
                     </div>
@@ -316,7 +304,6 @@ export default function PatientDashboard() {
                   </div>
                 </div>
 
-                
                 <div className="mt-3 flex flex-col sm:flex-row justify-between gap-2">
                   <p className="text-sm text-slate-600 break-words w-full">
                     {b.notes || b.patientNotes || ""}
@@ -325,7 +312,7 @@ export default function PatientDashboard() {
                   <button
                     onClick={() =>
                       setExpandedBookingId(
-                        expandedBookingId === b._id ? null : b._id
+                        expandedBookingId === b._id ? null : b._id,
                       )
                     }
                     className=" px-3 py-1  bg-slate-200 rounded text-sm w-full sm:w-auto whitespace-nowrap"
@@ -334,13 +321,12 @@ export default function PatientDashboard() {
                   </button>
                 </div>
 
-               
                 {expandedBookingId === b._id && (
                   <div className="mt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       {b.sessions?.map((s, idx) => {
                         const dateStr = new Date(
-                          s.sessionDate
+                          s.sessionDate,
                         ).toLocaleString();
                         return (
                           <div
@@ -349,8 +335,8 @@ export default function PatientDashboard() {
                               s.status === "completed"
                                 ? "bg-green-50 border-green-300"
                                 : s.status === "missed"
-                                ? "bg-red-50 border-red-300"
-                                : "bg-slate-50"
+                                  ? "bg-red-50 border-red-300"
+                                  : "bg-slate-50"
                             }`}
                           >
                             <div>
@@ -505,18 +491,17 @@ export default function PatientDashboard() {
 
             <div className="flex justify-end mt-4 gap-2">
               <button
-                onClick={() => setFeedbackModalOpen(false)}
-                className="px-3 py-1 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-
-              <button
                 onClick={handleSubmitModalFeedback}
-                className="px-3 py-1 bg-teal-600 text-white rounded"
+                disabled={processing}
+                className={`px-3 py-1 rounded text-white ${
+                  processing
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-teal-600 hover:bg-teal-700"
+                }`}
               >
-                Submit
+                {processing ? "Submitting..." : "Submit"}
               </button>
+          
             </div>
           </div>
         </div>
