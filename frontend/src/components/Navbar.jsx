@@ -20,7 +20,7 @@ const Navbar = () => {
           {
             method: "GET",
             credentials: "include",
-          }
+          },
         );
 
         if (res.ok) {
@@ -41,7 +41,7 @@ const Navbar = () => {
       const response = await axios.post(
         "https://ayursutra-2-tl11.onrender.com/user/logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setUser(null);
       navigate("/");
@@ -57,11 +57,7 @@ const Navbar = () => {
       <div className="flex justify-between items-center py-3 px-5 shadow bg-white sticky top-0 z-50">
         {/* Logo */}
         <div className="flex items-center font-bold text-2xl">
-          <img
-            src="https://img.freepik.com/premium-vector/modern-medical-health-care-center-ayurvedic-logo-design-vector-illustration_898869-86.jpg"
-            alt=""
-            className="h-14 w-14 mr-3"
-          />
+          <img src="/icon.png" alt="" className="h-14 w-14 mr-3" />
           <div className="text-emerald-600">
             <span className="text-lg sm:text-2xl">AyurSutra</span>
           </div>
