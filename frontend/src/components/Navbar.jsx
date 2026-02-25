@@ -6,7 +6,7 @@ import { IoNotificationsSharp } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
 import axios from "axios";
 import { toast } from "react-toastify";
-import icon from "../icon.png";
+import icon from "./icon.png";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
