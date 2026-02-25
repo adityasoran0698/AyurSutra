@@ -6,6 +6,7 @@ import { IoNotificationsSharp } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
 import axios from "axios";
 import { toast } from "react-toastify";
+import icon from "../icon.png";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -57,7 +58,7 @@ const Navbar = () => {
       <div className="flex justify-between items-center py-3 px-5 shadow bg-white sticky top-0 z-50">
         {/* Logo */}
         <div className="flex items-center font-bold text-2xl">
-          <img src="/icon.png" alt="" className="h-14 w-14 mr-3" />
+          <img src={icon} alt="" className="h-14 w-14 mr-3" />
           <div className="text-emerald-600">
             <span className="text-lg sm:text-2xl">AyurSutra</span>
           </div>
