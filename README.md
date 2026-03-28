@@ -383,7 +383,7 @@ The frontend uses `vercel.json` to handle client-side routing (SPA fallback). CO
 
 ---
 
-## Screenshots
+## Page Description
 
 | Page | Description |
 |---|---|
