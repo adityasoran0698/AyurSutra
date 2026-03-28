@@ -1,14 +1,134 @@
-# 🌿 AyurSutra — Connect. Consult. Heal.
+# 🌿 AyurSutra — AI-Powered Panchakarma Care
 
-> A full-stack Panchakarma therapy management platform that digitizes the entire lifecycle of Ayurvedic treatment — from smart booking and session tracking to multi-channel patient notifications and AI-powered wellness analytics.
+> An intelligent Ayurvedic therapy platform that uses **NLP-driven wellness scoring**, **predictive slot allocation**, and **multi-channel AI-assisted notifications** to deliver a fully automated, data-driven healing experience.
 
-**Live Demo:** [ayur-sutra-coral.vercel.app](https://ayur-sutra-coral.vercel.app)
+**Live Demo:** [ayur-sutra-coral.vercel.app](https://ayur-sutra-coral.vercel.app) &nbsp;|&nbsp; **Backend:** [ayursutra-2-tl11.onrender.com](https://ayursutra-2-tl11.onrender.com)
+
+---
+
+## 🤖 AI & Intelligence at a Glance
+
+AyurSutra is not just a booking system — it is an **AI-augmented clinical platform** that learns from patient feedback, automates scheduling decisions, and surfaces recovery intelligence for every session.
+
+| AI Capability | What It Does |
+|---|---|
+| 🧠 **NLP Sentiment Engine** | Runs `Sentiment.js` on free-text session notes to extract emotional recovery signals |
+| 📊 **Composite Wellness Scoring** | Fuses 5 clinical dimensions into a single 0–10 improvement score per session |
+| 📅 **Smart Slot Allocation** | Forward-searches availability in real time to prevent overbooking without any manual calendar work |
+| 🔔 **Automated Multi-Channel Alerts** | Fires parallel SMS + email + in-app notifications triggered by booking and session events |
+| 📈 **Recovery Trend Visualization** | Plots per-session wellness scores as an area chart, giving patients and doctors a visual healing trajectory |
+| 🔄 **Auto-Rescheduling Engine** | Detects missed sessions and automatically reschedules them across the booking lifecycle |
+
+---
+
+## 🧠 Core AI Features — Deep Dive
+
+### 1. NLP-Powered Wellness Scoring
+
+After every completed session, AyurSutra computes a **composite wellness score (0–10)** by fusing structured clinical inputs with unstructured natural language:
+
+```
+painScore      = 10 − pain          (lower pain → higher score)
+stressScore    = 10 − stress        (lower stress → higher score)
+energyScore    = energy             (higher energy → higher score)
+sleepScore     = poor(2) | average(5) | good(8)
+sentimentScore = Sentiment.js NLP on free-text notes → normalized 0–10
+
+finalScore = (painScore + stressScore + energyScore + sleepScore + sentimentScore) / 5
+```
+
+**Why this matters:** Most health apps track only structured vitals. AyurSutra is the only platform in this space that incorporates **real-time NLP sentiment analysis** on patient narratives to produce a richer, more holistic recovery signal.
+
+The sentiment scores are stored on the session document and plotted as an **interactive Recharts area chart** — giving both patients and doctors a continuous, data-driven view of healing progress across the full therapy duration.
+
+---
+
+### 2. Intelligent Slot Allocation Algorithm
+
+When a patient books a therapy, AyurSutra runs a **constraint-aware forward search** instead of blindly assigning today's date:
+
+```
+Start from today
+  ↓
+Count existing bookings for (doctor × therapy × date)
+  ↓
+If count < slotsPerDay  →  assign this date ✅
+If count ≥ slotsPerDay  →  advance to next day, repeat
+  ↓
+Once a valid date is found:
+  Generate one session per day × full therapy duration
+  (e.g., 14-day Panchakarma → 14 sequential sessions)
+  ↓
+Dispatch confirmation: SMS + email + in-app (parallel, non-blocking)
+```
+
+This is effectively a **greedy scheduling algorithm** with per-day capacity constraints — eliminating double-booking and manual calendar management entirely.
+
+---
+
+### 3. Auto-Rescheduling Engine
+
+The platform includes a `node-cron`-powered background job that:
+
+- Scans all bookings for sessions with status `missed`
+- Re-runs the slot allocation algorithm for each missed session
+- Updates session dates and re-dispatches notifications automatically
+
+This keeps therapy continuity intact without any manual doctor intervention.
+
+---
+
+### 4. Multi-Channel Notification Intelligence
+
+Notifications are fired at two key clinical moments:
+
+| Trigger | Channels | Content |
+|---|---|---|
+| **Booking confirmed** | SMS (Twilio) + Email (Nodemailer) + In-App | Therapy name, doctor, start date, pre-procedure instructions |
+| **Session completed** | SMS + Email + In-App | Post-procedure care instructions from `therapy.instructions.post` |
+
+All three channels run in **parallel via `Promise.all`** — non-blocking, fault-tolerant, and logged per session in the `notifications` sub-document array.
+
+---
+
+### 5. AI-Ready Data Architecture
+
+Every session stores a rich, ML-ready document:
+
+```js
+{
+  sessionDate: Date,
+  status: "scheduled" | "completed" | "missed",
+
+  // Structured clinical vitals (ML features)
+  pain: Number,        // 0–10
+  stress: Number,      // 0–10
+  energy: Number,      // 0–10
+  sleep: "poor" | "average" | "good",
+
+  // Unstructured NLP input
+  feedbackText: String,
+
+  // AI-computed outputs
+  sentiment: String,           // NLP label
+  improvementScore: Number,    // 0–10 composite score
+
+  // Notification audit trail
+  notifications: [{
+    type: "pre-procedure" | "post-procedure" | "in-app",
+    message: String,
+    sent: Boolean,
+    sentAt: Date
+  }]
+}
+```
+
+This schema is designed for future extensibility — plugging in a Python ML model, a vector embedding store, or a recommendation engine requires no schema changes.
 
 ---
 
 ## 📋 Table of Contents
 
-- [About the Project](#about-the-project)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -16,51 +136,34 @@
 - [Environment Variables](#environment-variables)
 - [API Reference](#api-reference)
 - [Data Models](#data-models)
-- [How the Booking System Works](#how-the-booking-system-works)
-- [Wellness Scoring Algorithm](#wellness-scoring-algorithm)
 - [Deployment](#deployment)
-- [Screenshots](#screenshots)
 
 ---
 
-## About the Project
-
-Panchakarma is gaining global recognition for detoxification, rejuvenation, and chronic disease management — contributing to a projected **USD 16 billion Ayurveda market by 2026**. Yet most clinics still rely on manual scheduling and paper records.
-
-**AyurSutra** bridges this gap with a modern, patient-centric web platform that:
-
-- Automates therapy scheduling with intelligent slot management
-- Tracks patient health progress session-by-session
-- Delivers multi-channel notifications (SMS, email, in-app)
-- Visualizes recovery trends using sentiment analysis and vitals data
-- Gives doctors a real-time view of all their patients
-
----
-
-## Features
+## ✨ Features
 
 ### For Patients
-- 🗓️ **Smart Therapy Booking** — choose a therapy and doctor; the system automatically assigns the earliest available date
-- 📊 **Session Dashboard** — view all bookings, session statuses, and progress bars at a glance
-- 📝 **Session Feedback** — submit pain, stress, energy, sleep quality, and free-text notes after each completed session
-- 📈 **Improvement Chart** — see a composite wellness score plotted over every session
-- 🔔 **Multi-channel Notifications** — receive booking confirmations via SMS, email, and in-app
+- 🗓️ **AI-Scheduled Booking** — slot allocation runs automatically; patients never see a calendar conflict
+- 📊 **Session Dashboard** — booking cards, progress bars, and session status at a glance
+- 📝 **Post-Session Feedback** — pain, stress, energy, sleep quality, and open-ended notes (NLP-analyzed)
+- 📈 **Improvement Chart** — composite wellness score plotted across every session
+- 🔔 **Multi-Channel Alerts** — SMS, email, and in-app confirmations and care instructions
 
 ### For Doctors
-- 👥 **Patient Management** — view all assigned patients grouped by booking
-- ✅ **Session Status Control** — mark sessions as completed or missed in one click
-- 📅 **Upcoming Sessions Chart** — an area chart of sessions scheduled over the next 14 days
-- 🩺 **Per-patient Progress View** — see pie charts and improvement charts for every patient's booking
-- ✍️ **Blog Publishing** — write and publish Ayurveda articles for the community
+- 👥 **Patient Intelligence View** — all assigned patients grouped by booking, with per-patient analytics
+- ✅ **Session Control** — mark sessions completed or missed in one click; rescheduling is automatic
+- 📅 **14-Day Demand Chart** — area chart of upcoming sessions to anticipate clinic load
+- 🩺 **Per-Patient Recovery Analytics** — pie charts and improvement curves for every booking
+- ✍️ **Blog Publishing** — publish Ayurveda articles for the patient community
 
-### Platform-wide
-- 🔐 Role-based access (patient / doctor) enforced across UI and API
-- 🌐 Responsive design — works on mobile, tablet, and desktop
-- ⚡ Real-time toast notifications for all actions
+### Platform-Wide
+- 🔐 Role-based access (patient / doctor) enforced at both UI and API layers
+- 🌐 Fully responsive — mobile, tablet, and desktop
+- ⚡ Real-time toast notifications for every user action
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
 | Technology | Purpose |
@@ -70,10 +173,10 @@ Panchakarma is gaining global recognition for detoxification, rejuvenation, and 
 | TailwindCSS v4 | Styling |
 | React Router v7 | Client-side routing |
 | Axios | HTTP client |
-| Recharts | Charts and data visualization |
-| Framer Motion | Animations |
+| Recharts | Wellness trend charts and session analytics |
+| Framer Motion | Animations and transitions |
 | React Hook Form | Form management |
-| Sentiment.js | Client-side NLP for wellness scoring |
+| **Sentiment.js** | **Client-side NLP for wellness scoring** |
 | React Toastify | Toast notifications |
 | shadcn/ui | UI component primitives |
 
@@ -86,74 +189,70 @@ Panchakarma is gaining global recognition for detoxification, rejuvenation, and 
 | jsonwebtoken | JWT authentication |
 | cookie-parser | HTTP cookie handling |
 | Nodemailer | Email notifications (Gmail SMTP) |
-| Twilio | SMS notifications |
-| node-cron | Scheduled background jobs |
+| **Twilio** | **Automated SMS notifications** |
+| **node-cron** | **Scheduled background jobs (auto-reschedule)** |
 | dotenv | Environment variable management |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 AyurSutra/
 │
 ├── backend/
 │   ├── controllers/
-│   │   ├── bookingController.js     # Smart slot assignment + session generation
+│   │   ├── bookingController.js     # Smart slot allocation + session generation
 │   │   └── sessionController.js    # Session completion + post-procedure alerts
 │   ├── models/
 │   │   ├── user.js                  # Patient & doctor schema (role-conditional fields)
-│   │   ├── booking.js               # Booking + embedded sessions + feedback
+│   │   ├── booking.js               # Booking + embedded sessions + AI feedback schema
 │   │   ├── Therapy.js               # Therapy catalog with slots and instructions
 │   │   └── Blogs.js                 # Doctor-authored blog posts
 │   ├── routes/
 │   │   ├── user.js                  # Auth, profile, doctors, patients
 │   │   ├── therapy.js               # Therapy CRUD
-│   │   ├── booking.js               # Booking lifecycle + feedback
+│   │   ├── booking.js               # Booking lifecycle + AI feedback ingestion
 │   │   └── blogs.js                 # Blog CRUD
 │   ├── services/
 │   │   └── auth.js                  # JWT generate + validate
 │   ├── utils/
-│   │   └── notificationService.js   # SMS + email + in-app (parallel, non-blocking)
+│   │   └── notificationService.js   # Parallel SMS + email + in-app (non-blocking)
 │   ├── connectDB.js                 # MongoDB connection
-│   └── index.js                     # App entry point, middleware, routes
+│   └── index.js                     # App entry point, middleware, cron jobs, routes
 │
 ├── frontend/
-│   ├── public/
-│   │   └── bg.jpg                   # Background image
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx           # Role-adaptive navigation
-│   │   │   ├── PatientCard.jsx      # Doctor's per-patient dialog with charts
-│   │   │   └── improvmentChart.jsx  # Recharts area chart with wellness scores
-│   │   ├── pages/
-│   │   │   ├── HomePage.jsx         # Landing page
-│   │   │   ├── LoginPage.jsx        # Role-aware login
-│   │   │   ├── RegisterPage.jsx     # Patient + doctor registration
-│   │   │   ├── Therapies.jsx        # Searchable therapy catalog
-│   │   │   ├── BookTherapies.jsx    # Booking flow
-│   │   │   ├── PatientDashboard.jsx # Patient home with charts + feedback
-│   │   │   ├── DoctorDashbaord.jsx  # Doctor home with patient management
-│   │   │   ├── AddTherapy.jsx       # Doctor therapy creation form
-│   │   │   └── Blog.jsx             # Blog list + doctor publish modal
-│   │   ├── App.jsx                  # Route definitions
-│   │   ├── main.jsx                 # React entry point
-│   │   └── ProtectedRoute.jsx       # Auth guard component
-│   └── vite.config.js
+│   └── src/
+│       ├── components/
+│       │   ├── Navbar.jsx           # Role-adaptive navigation
+│       │   ├── PatientCard.jsx      # Doctor's per-patient dialog with analytics
+│       │   └── improvmentChart.jsx  # Recharts area chart — NLP wellness scores
+│       ├── pages/
+│       │   ├── HomePage.jsx         # Landing page
+│       │   ├── LoginPage.jsx        # Role-aware login
+│       │   ├── RegisterPage.jsx     # Patient + doctor registration
+│       │   ├── Therapies.jsx        # Searchable therapy catalog
+│       │   ├── BookTherapies.jsx    # AI-scheduled booking flow
+│       │   ├── PatientDashboard.jsx # Patient home — charts, feedback, NLP scores
+│       │   ├── DoctorDashbaord.jsx  # Doctor home — patient management + demand chart
+│       │   ├── AddTherapy.jsx       # Doctor therapy creation form
+│       │   └── Blog.jsx             # Community articles
+│       ├── App.jsx
+│       └── ProtectedRoute.jsx       # Auth guard component
 │
 └── jsconfig.json
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js v18+
 - MongoDB Atlas account (or local MongoDB)
 - Twilio account (for SMS)
-- Gmail account with App Password enabled (for email)
+- Gmail account with App Password (for email)
 
 ### 1. Clone the repository
 
@@ -167,15 +266,11 @@ cd AyurSutra
 ```bash
 cd backend
 npm install
-```
-
-Create a `.env` file in the `backend/` directory (see [Environment Variables](#environment-variables)).
-
-```bash
+# Create your .env file (see Environment Variables below)
 npm run dev
 ```
 
-The server runs on `http://localhost:8000`.
+Server runs on `http://localhost:8000`.
 
 ### 3. Set up the Frontend
 
@@ -185,13 +280,13 @@ npm install
 npm run dev
 ```
 
-The app runs on `http://localhost:5173`.
+App runs on `http://localhost:5173`.
 
 ---
 
-## Environment Variables
+## 🔐 Environment Variables
 
-Create a `.env` file inside the `backend/` folder:
+Create a `.env` file inside `backend/`:
 
 ```env
 # MongoDB
@@ -203,7 +298,7 @@ JWT_SECRET=your_jwt_secret_key
 # Server
 PORT=8000
 
-# Twilio (SMS)
+# Twilio (SMS Notifications)
 TWILIO_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE=+1xxxxxxxxxx
@@ -213,17 +308,17 @@ EMAIL_USER=your_gmail@gmail.com
 EMAIL_PASS=your_gmail_app_password
 ```
 
-> **Note:** For Gmail, enable 2-Factor Authentication and generate an **App Password** from your Google account settings. Do not use your regular Gmail password.
+> **Gmail note:** Enable 2-Factor Authentication and generate an **App Password** from your Google account settings. Do not use your regular Gmail password.
 
 ---
 
-## API Reference
+## 📡 API Reference
 
 ### Auth — `/user`
 
 | Method | Endpoint | Description | Auth |
 |---|---|---|---|
-| `POST` | `/user/register` | Register a new patient or doctor | Public |
+| `POST` | `/user/register` | Register patient or doctor | Public |
 | `POST` | `/user/login` | Login and receive JWT cookie | Public |
 | `POST` | `/user/logout` | Clear auth cookie | Public |
 | `GET` | `/user/me` | Get current user from cookie | Cookie |
@@ -242,13 +337,13 @@ EMAIL_PASS=your_gmail_app_password
 
 | Method | Endpoint | Description | Auth |
 |---|---|---|---|
-| `POST` | `/bookings` | Create a booking (auto-schedules date) | Patient |
+| `POST` | `/bookings` | Create booking (AI slot allocation) | Patient |
 | `GET` | `/bookings` | Get all bookings for current patient | Patient |
 | `PATCH` | `/bookings/update/:bookingId` | Update sessions + progress | Doctor |
-| `POST` | `/bookings/:bookingId/:sessionIndex` | Submit session feedback | Patient |
+| `POST` | `/bookings/:bookingId/:sessionIndex` | Submit NLP-analyzed session feedback | Patient |
 | `DELETE` | `/bookings/delete/:id` | Delete a booking | Doctor |
-| `PATCH` | `/bookings/auto-reschedule` | Reschedule all missed sessions | Any |
-| `PATCH` | `/bookings/:id/auto-schedule` | Reschedule a single booking | Any |
+| `PATCH` | `/bookings/auto-reschedule` | AI auto-reschedule all missed sessions | Any |
+| `PATCH` | `/bookings/:id/auto-schedule` | AI reschedule a single booking | Any |
 
 ### Blogs — `/blogs`
 
@@ -259,7 +354,7 @@ EMAIL_PASS=your_gmail_app_password
 
 ---
 
-## Data Models
+## 🗃️ Data Models
 
 ### User
 ```js
@@ -270,7 +365,7 @@ EMAIL_PASS=your_gmail_app_password
   password: String (bcrypt hashed),
   role: "patient" | "doctor",
 
-  // Doctor-only fields
+  // Doctor-only
   specialization: String,
   experience: Number,
   qualification: String
@@ -284,43 +379,49 @@ EMAIL_PASS=your_gmail_app_password
   description: String,
   duration: Number,        // days (= number of sessions)
   price: Number,
-  slotsPerDay: Number,     // max bookings per day (default: 5)
+  slotsPerDay: Number,     // capacity constraint for slot allocator (default: 5)
   createdBy: ObjectId,     // ref: User (doctor)
   isActive: Boolean,
   instructions: {
-    pre: [String],
-    post: [String]
+    pre: [String],         // sent as pre-procedure SMS/email
+    post: [String]         // sent as post-procedure SMS/email
   }
 }
 ```
 
-### Booking
+### Booking (AI-enriched session schema)
 ```js
 {
   therapyId: ObjectId,
   doctorId: ObjectId,
   patientId: ObjectId,
-  date: Date,              // auto-assigned start date
+  date: Date,              // auto-assigned by slot allocation algorithm
   status: "pending" | "confirmed" | "in-progress" | "completed" | "cancelled",
+
   sessions: [{
     sessionDate: Date,
     status: "scheduled" | "completed" | "missed",
+
+    // Multi-channel notification audit trail
     notifications: [{
       type: "pre-procedure" | "post-procedure" | "in-app",
       message: String,
       sent: Boolean,
       sentAt: Date
     }],
-    // Patient feedback
-    feedbackText: String,
+
+    // Structured clinical inputs (ML features)
     pain: Number,          // 0–10
     stress: Number,        // 0–10
     energy: Number,        // 0–10
     sleep: "poor" | "average" | "good",
-    // Computed
-    sentiment: String,
-    improvementScore: Number
+    feedbackText: String,  // free-text — NLP input
+
+    // AI-computed outputs
+    sentiment: String,           // NLP sentiment label
+    improvementScore: Number     // 0–10 composite wellness score
   }],
+
   progress: {
     completedSessions: Number,
     totalSessions: Number,
@@ -331,47 +432,7 @@ EMAIL_PASS=your_gmail_app_password
 
 ---
 
-## How the Booking System Works
-
-When a patient books a therapy, the system does not simply record today's date. Instead it runs a **slot-aware forward search**:
-
-```
-Start from today
-↓
-Count existing bookings for (doctor + therapy + date)
-↓
-If count < slotsPerDay → assign this date ✅
-If count >= slotsPerDay → move to next day and repeat
-↓
-Once a date is found, generate one session per day
-for the full therapy duration (e.g. 7 days → 7 sessions)
-↓
-Send confirmation via SMS + email + in-app (parallel)
-```
-
-This prevents overbooking and ensures every patient gets a real, available slot automatically — no manual calendar management needed.
-
----
-
-## Wellness Scoring Algorithm
-
-After each session, a **composite wellness score (0–10)** is calculated from the patient's feedback using five equally weighted dimensions:
-
-```
-painScore    = 10 - pain          (lower pain = better)
-stressScore  = 10 - stress        (lower stress = better)
-energyScore  = energy             (higher = better)
-sleepScore   = poor(2) | average(5) | good(8)
-sentimentScore = Sentiment.js NLP on feedbackText → normalized to 0–10
-
-finalScore = (painScore + stressScore + energyScore + sleepScore + sentimentScore) / 5
-```
-
-These scores are plotted as an area chart across sessions, giving both patients and doctors a visual trend of health improvement over the course of the therapy.
-
----
-
-## Deployment
+## 🚢 Deployment
 
 | Layer | Platform | URL |
 |---|---|---|
@@ -379,28 +440,38 @@ These scores are plotted as an area chart across sessions, giving both patients 
 | Backend | Render.com | `https://ayursutra-2-tl11.onrender.com` |
 | Database | MongoDB Atlas | Cloud-hosted |
 
-The frontend uses `vercel.json` to handle client-side routing (SPA fallback). CORS is configured on the backend to only accept requests from the Vercel domain and `localhost:5173`.
+The frontend uses `vercel.json` for SPA routing fallback. CORS is configured on the backend to accept requests from the Vercel domain and `localhost:5173` only.
 
 ---
 
-## Page Description
+## 🗺️ Pages
 
 | Page | Description |
 |---|---|
 | **Home** | Landing page with features, how-it-works, and testimonials |
 | **Therapies** | Searchable catalog of Panchakarma therapies |
-| **Book Therapy** | Doctor selection and auto-scheduled booking |
-| **Patient Dashboard** | Session cards, progress bars, pie chart, improvement chart |
-| **Doctor Dashboard** | Patient list, upcoming sessions chart, session management |
+| **Book Therapy** | AI-scheduled booking flow with doctor selection |
+| **Patient Dashboard** | Session cards, NLP wellness chart, pie charts, feedback form |
+| **Doctor Dashboard** | Patient list, 14-day demand chart, session management |
 | **Blog** | Community articles published by doctors |
 
 ---
 
-## Author
+## 🔮 Roadmap — AI Enhancements
+
+- [ ] **Personalized therapy recommendations** — collaborative filtering based on patient profiles and past outcomes
+- [ ] **Predictive recovery modeling** — regression model trained on historical wellness scores to estimate time-to-recovery
+- [ ] **Doctor-facing anomaly alerts** — flag patients whose wellness scores plateau or decline across sessions
+- [ ] **Voice feedback input** — speech-to-text for session notes, feeding directly into the NLP sentiment pipeline
+- [ ] **LLM-powered care summaries** — auto-generate a structured end-of-therapy report for each patient booking
+
+---
+
+## 👤 Author
 
 **Aditya Soran**
 GitHub: [@adityasoran0698](https://github.com/adityasoran0698)
 
 ---
 
-> *AyurSutra — Bringing the wisdom of Panchakarma into the digital age.*
+> *AyurSutra — Where ancient Panchakarma wisdom meets modern AI.*
