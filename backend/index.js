@@ -28,7 +28,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 
 // ⭐ FIX for preflight requests
@@ -37,12 +37,18 @@ app.options(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ✅ Routes
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "AyurSutra Backend API Running",
+  });
+});
 app.use("/user", userRoute);
 app.use("/therapy", therapyRoute);
 app.use("/bookings", bookingRoute);
