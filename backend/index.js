@@ -55,3 +55,4 @@ app.use("/bookings", bookingRoute);
 app.use("/blogs", blogsRoute);
 
 app.listen(port, () => console.log(`Server is running on ${port}`));
+module.exports = app;
