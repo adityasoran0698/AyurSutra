@@ -52,8 +52,8 @@ router.patch("/update/:bookingId", async (req, res) => {
     const updatedBooking = await Booking.findByIdAndUpdate(
       req.params.bookingId,
       {
-        ...(progress && { progress }), // ✅ update progress if provided
-        ...(sessions && { sessions }), // ✅ update sessions array
+        ...(progress && { progress }), 
+        ...(sessions && { sessions }), 
       },
       { new: true }
     )
