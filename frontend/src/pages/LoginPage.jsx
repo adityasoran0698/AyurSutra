@@ -21,9 +21,9 @@ const LoginPage = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/login",
+        "https://ayur-sutra-fvdx.vercel.app/user/login",
         { ...data, role },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       toast.success(response.data);

@@ -57,7 +57,7 @@ export default function PatientDashboard() {
   async function fetchBookings() {
     try {
       const res = await axios.get(
-        "https://ayursutra-2-tl11.onrender.com/bookings",
+        "https://ayur-sutra-fvdx.vercel.app/bookings",
         {
           withCredentials: true,
         },
@@ -95,7 +95,7 @@ export default function PatientDashboard() {
       };
 
       await axios.post(
-        `https://ayursutra-2-tl11.onrender.com/bookings/${bookingId}/${sessionIndex}`,
+        `https://ayur-sutra-fvdx.vercel.app/bookings/${bookingId}/${sessionIndex}`,
         payload,
         { withCredentials: true },
       );
@@ -501,7 +501,6 @@ export default function PatientDashboard() {
               >
                 {processing ? "Submitting..." : "Submit"}
               </button>
-          
             </div>
           </div>
         </div>

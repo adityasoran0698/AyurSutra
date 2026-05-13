@@ -14,12 +14,12 @@ const AddTherapyPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/therapy/add-therapy",
+        "https://ayur-sutra-fvdx.vercel.app/therapy/add-therapy",
 
         data,
         {
           withCredentials: true, // needed if auth cookies are used
-        }
+        },
       );
       toast.success(response.data.message);
       reset(); // clear form after submit

@@ -16,13 +16,10 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
-          {
-            method: "GET",
-            credentials: "include",
-          },
-        );
+        const res = await fetch("https://ayur-sutra-fvdx.vercel.app/user/me", {
+          method: "GET",
+          credentials: "include",
+        });
 
         if (res.ok) {
           const data = await res.json();
@@ -40,7 +37,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/logout",
+        "https://ayur-sutra-fvdx.vercel.app/user/logout",
         {},
         { withCredentials: true },
       );

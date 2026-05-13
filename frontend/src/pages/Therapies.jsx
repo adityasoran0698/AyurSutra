@@ -17,7 +17,7 @@ const Therapies = () => {
     const fetchTherapies = async () => {
       try {
         const res = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/therapy"
+          "https://ayur-sutra-fvdx.vercel.app/therapy",
         );
         setTherapies(res.data.therapies);
         setFilteredTherapies(res.data.therapies);
@@ -29,10 +29,10 @@ const Therapies = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
+          "https://ayur-sutra-fvdx.vercel.app/user/me",
           {
             withCredentials: true,
-          }
+          },
         );
         setUser(res.data.user);
       } catch {
@@ -48,8 +48,8 @@ const Therapies = () => {
   useEffect(() => {
     setFilteredTherapies(
       therapies.filter((therapy) =>
-        therapy.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+        therapy.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   }, [searchQuery, therapies]);
 

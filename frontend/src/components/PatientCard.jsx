@@ -16,8 +16,8 @@ const PatientCard = ({
   const handleDeleteBooking = async (bookingId) => {
     try {
       const response = await axios.delete(
-        `https://ayursutra-2-tl11.onrender.com/bookings/delete/${bookingId}`,
-        { withCredentials: true }
+        `https://ayur-sutra-fvdx.vercel.app/bookings/delete/${bookingId}`,
+        { withCredentials: true },
       );
       toast.success(response.data.message);
     } catch (error) {
@@ -59,13 +59,13 @@ const PatientCard = ({
               {bookings.map((b) => {
                 const sessions = b.sessions || [];
                 const completed = sessions.filter(
-                  (s) => s.status === "completed"
+                  (s) => s.status === "completed",
                 ).length;
                 const scheduled = sessions.filter(
-                  (s) => s.status === "scheduled"
+                  (s) => s.status === "scheduled",
                 ).length;
                 const missed = sessions.filter(
-                  (s) => s.status === "missed"
+                  (s) => s.status === "missed",
                 ).length;
 
                 const pieData = [
@@ -141,8 +141,8 @@ const PatientCard = ({
                             s.status === "completed"
                               ? "bg-green-50 border-green-300"
                               : s.status === "missed"
-                              ? "bg-red-50 border-red-300"
-                              : "bg-white"
+                                ? "bg-red-50 border-red-300"
+                                : "bg-white"
                           }`}
                         >
                           <div>
@@ -163,7 +163,7 @@ const PatientCard = ({
                                   i,
                                   s.status === "completed"
                                     ? "scheduled"
-                                    : "completed"
+                                    : "completed",
                                 )
                               }
                               className={`text-xs px-2 py-1 rounded ${
@@ -180,7 +180,9 @@ const PatientCard = ({
                                 handleUpdateSession(
                                   b._id,
                                   i,
-                                  s.status === "missed" ? "scheduled" : "missed"
+                                  s.status === "missed"
+                                    ? "scheduled"
+                                    : "missed",
                                 )
                               }
                               className={`text-xs px-2 py-1 rounded ${

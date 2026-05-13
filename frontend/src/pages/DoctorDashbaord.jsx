@@ -40,10 +40,10 @@ export default function DoctorDashboard() {
     try {
       setLoading(true);
       const res = await axios.get(
-        "https://ayursutra-2-tl11.onrender.com/user/patients",
+        "https://ayur-sutra-fvdx.vercel.app/user/patients",
         {
           withCredentials: true,
-        }
+        },
       );
       const data = res.data.patients || res.data.bookings || [];
       setBookings(Array.isArray(data) ? data : []);
@@ -79,15 +79,15 @@ export default function DoctorDashboard() {
         bookingId: b._id,
         therapyName: b.therapyId?.name,
         patient: b.patientId,
-      }))
+      })),
     );
   }, [bookings]);
 
   const completedCount = allSessions.filter(
-    (s) => s.status === "completed"
+    (s) => s.status === "completed",
   ).length;
   const scheduledCount = allSessions.filter(
-    (s) => s.status === "scheduled"
+    (s) => s.status === "scheduled",
   ).length;
   const missedCount = allSessions.filter((s) => s.status === "missed").length;
 
@@ -100,7 +100,7 @@ export default function DoctorDashboard() {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
       const key = `${String(d.getDate()).padStart(2, "0")}/${String(
-        d.getMonth() + 1
+        d.getMonth() + 1,
       ).padStart(2, "0")}/${d.getFullYear()}`;
       map[key] = 0;
     }
@@ -109,7 +109,7 @@ export default function DoctorDashboard() {
       const sessionDate = new Date(s.sessionDate);
       if (sessionDate >= now) {
         const key = `${String(sessionDate.getDate()).padStart(2, "0")}/${String(
-          sessionDate.getMonth() + 1
+          sessionDate.getMonth() + 1,
         ).padStart(2, "0")}/${sessionDate.getFullYear()}`;
         if (map[key] !== undefined) map[key] += 1;
       }
@@ -125,11 +125,11 @@ export default function DoctorDashboard() {
       if (!booking) throw new Error("Booking not found");
 
       const updatedSessions = booking.sessions.map((s, idx) =>
-        idx === sessionIndex ? { ...s, status: newStatus } : s
+        idx === sessionIndex ? { ...s, status: newStatus } : s,
       );
 
       const completedSessions = updatedSessions.filter(
-        (s) => s.status === "completed"
+        (s) => s.status === "completed",
       ).length;
 
       const newProgress = {
@@ -138,15 +138,15 @@ export default function DoctorDashboard() {
       };
 
       const res = await axios.patch(
-        `https://ayursutra-2-tl11.onrender.com/bookings/update/${bookingId}`,
+        `https://ayur-sutra-fvdx.vercel.app/bookings/update/${bookingId}`,
         { sessions: updatedSessions, progress: newProgress },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       const updated = res.data.booking || res.data;
 
       setBookings((prev) =>
-        prev.map((b) => (b._id === bookingId ? updated : b))
+        prev.map((b) => (b._id === bookingId ? updated : b)),
       );
     } catch {
       toast.error("Failed to update session.");

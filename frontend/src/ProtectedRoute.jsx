@@ -8,13 +8,10 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
-          {
-            method: "GET",
-            credentials: "include", // send httpOnly cookie
-          }
-        );
+        const res = await fetch("https://ayur-sutra-fvdx.vercel.app/user/me", {
+          method: "GET",
+          credentials: "include", // send httpOnly cookie
+        });
 
         const data = await res.json();
 

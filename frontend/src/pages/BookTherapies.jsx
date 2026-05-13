@@ -21,7 +21,7 @@ const BookTherapies = () => {
     async function fetchTherapy() {
       try {
         const res = await axios.get(
-          `https://ayursutra-2-tl11.onrender.com/therapy/${id}`
+          `https://ayur-sutra-fvdx.vercel.app/therapy/${id}`,
         );
         setTherapy(res.data.therapy);
       } catch (err) {
@@ -38,10 +38,10 @@ const BookTherapies = () => {
     async function fetchDoctors() {
       try {
         const res = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/user/doctors",
+          "https://ayur-sutra-fvdx.vercel.app/user/doctors",
           {
             withCredentials: true,
-          }
+          },
         );
         setDoctors(res.data.doctors || []);
       } catch (err) {
@@ -64,13 +64,13 @@ const BookTherapies = () => {
     setIsBooking(true);
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/bookings",
+        "https://ayur-sutra-fvdx.vercel.app/bookings",
         {
           therapyId: therapy._id,
           doctorId: selectedDoctor,
           notes,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -171,8 +171,6 @@ const BookTherapies = () => {
               ))}
             </select>
           </div>
-
-
 
           {/* Submit Button */}
           <button

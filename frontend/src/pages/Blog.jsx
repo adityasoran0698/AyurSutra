@@ -16,12 +16,9 @@ const Blog = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          "https://ayursutra-2-tl11.onrender.com/user/me",
-          {
-            credentials: "include",
-          }
-        );
+        const res = await fetch("https://ayur-sutra-fvdx.vercel.app/user/me", {
+          credentials: "include",
+        });
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -34,7 +31,7 @@ const Blog = () => {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/blogs/all-blogs"
+          "https://ayur-sutra-fvdx.vercel.app/blogs/all-blogs",
         );
 
         setBlogs(response.data.blogs || []);
@@ -53,11 +50,11 @@ const Blog = () => {
   const handleAddBlog = async (data) => {
     try {
       const res = await axios.post(
-        `https://ayursutra-2-tl11.onrender.com/blogs/add-blogs/${user._id}`,
+        `https://ayur-sutra-fvdx.vercel.app/blogs/add-blogs/${user._id}`,
         data,
         {
           withCredentials: true,
-        }
+        },
       );
 
       if (res.status === 201 || res.status === 200) {
@@ -66,7 +63,7 @@ const Blog = () => {
         reset();
         // Refresh blog list
         const updatedBlogs = await axios.get(
-          "https://ayursutra-2-tl11.onrender.com/blogs/all-blogs"
+          "https://ayur-sutra-fvdx.vercel.app/blogs/all-blogs",
         );
         setBlogs(updatedBlogs.data.blogs || []);
       }

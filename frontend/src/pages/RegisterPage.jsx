@@ -23,8 +23,8 @@ const RegisterPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "https://ayursutra-2-tl11.onrender.com/user/register",
-        data
+        "https://ayur-sutra-fvdx.vercel.app/user/register",
+        data,
       );
       setLoading(true);
 
